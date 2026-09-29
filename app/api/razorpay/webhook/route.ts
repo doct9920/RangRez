@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isValidWebhookSignature } from '@/lib/razorpay-server';
 import { notifyOrderPlaced } from '@/lib/notifications';
+import { queuePrintJob } from '@/lib/print-jobs';
 
 /**
  * Razorpay webhook.
@@ -39,7 +40,10 @@ export async function POST(request: NextRequest) {
             return null;
           });
 
-        if (paid) await notifyOrderPlaced(paid.id);
+        if (paid) {
+  await notifyOrderPlaced(paid.id);
+  await queuePrintJob(paid.id);
+}
       } else if (event.event === 'payment.failed') {
         // Record the failure so the order is not left pending forever.
         await prisma.order

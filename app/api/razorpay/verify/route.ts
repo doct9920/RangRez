@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getRazorpay, isValidPaymentSignature } from '@/lib/razorpay-server';
 import { notifyOrderPlaced } from '@/lib/notifications';
+import { queuePrintJob } from '@/lib/print-jobs';
 
 /**
  * Confirms a checkout callback and marks the order paid.
@@ -94,7 +95,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
+
     await notifyOrderPlaced(updated.id);
+    await queuePrintJob(updated.id);
 
     return NextResponse.json({
       verified: true,

@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { getTokenFromRequest, verifyToken } from '@/lib/jwt';
 import { priceCart } from '@/lib/pricing';
 import { notifyOrderPlaced } from '@/lib/notifications';
+import { queuePrintJob } from '@/lib/print-jobs';
 
 /**
  * Places an order.
@@ -79,10 +80,11 @@ export async function POST(request: NextRequest) {
       select: { id: true, orderId: true, total: true },
     });
 
-    // Online orders are announced once payment verifies, not here.
-    if (paymentMethod === 'cod') {
-      await notifyOrderPlaced(order.id);
-    }
+// Online orders are announced once payment verifies, not here.
+if (paymentMethod === 'cod') {
+  await notifyOrderPlaced(order.id);
+  await queuePrintJob(order.id);
+}
 
     console.log(
       `[orders/place] ${order.orderId} (${paymentMethod}) for ${userEmail}` +
