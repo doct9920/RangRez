@@ -39,3 +39,6 @@ next-env.d.ts
 
 
 /lib/generated/prisma
+
+print-connector/node_modules/
+print-connector/*.pdf
