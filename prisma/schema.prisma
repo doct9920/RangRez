@@ -127,6 +127,7 @@ model Order {
   user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   items          OrderItem[]
   whatsappEvents WhatsAppEvent[]
+  printJob        PrintJob?
 
   @@index([userId])
   @@index([userEmail])
@@ -245,4 +246,28 @@ model HomepageSettings {
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("homepage_settings")
+}
+enum PrintJobStatus {
+  pending
+  printing
+  printed
+  failed
+}
+
+model PrintJob {
+  id        String         @id @default(cuid())
+  orderId   String         @map("order_id")
+  status    PrintJobStatus @default(pending)
+  attempts  Int            @default(0)
+  printedAt DateTime?      @map("printed_at")
+  error     String?        @db.Text
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("print_jobs")
 }
