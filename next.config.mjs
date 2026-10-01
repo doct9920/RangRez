@@ -1,3 +1,5 @@
+import withPWAInit from '@ducanh2912/next-pwa';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -21,15 +23,19 @@ const nextConfig = {
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Allow unoptimized images for placeholders
     unoptimized: false,
   },
-  // Performance optimizations
+
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
   swcMinify: true,
 };
 
-export default nextConfig;
+const withPWA = withPWAInit({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+});
 
+export default withPWA(nextConfig);
