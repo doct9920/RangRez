@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Database Product Functions
  * 
  * This module provides database-backed product functions.
@@ -25,6 +25,9 @@ function prismaToProduct(prismaProduct: any): Product {
     inStock: prismaProduct.inStock,
     sku: prismaProduct.sku,
     collection: prismaProduct.collection,
+    collections: prismaProduct.collections?.map(
+  (pc: any) => pc.collection.name
+) || [prismaProduct.collection],
     searchKeywords: prismaProduct.searchKeywords as string[] | undefined,
   };
 }
@@ -35,6 +38,13 @@ function prismaToProduct(prismaProduct: any): Product {
 export async function getAllProductsFromDB(): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
+      include: {
+  collections: {
+    include: {
+      collection: true,
+    },
+  },
+},
       orderBy: {
         createdAt: 'desc',
       },
@@ -55,6 +65,13 @@ export async function getProductByIdFromDB(id: string): Promise<Product | null> 
   try {
     const product = await prisma.product.findUnique({
       where: { id },
+      include: {
+        collections: {
+          include: {
+            collection: true,
+          },
+        },
+      },
     });
 
     if (!product) {
@@ -75,7 +92,25 @@ export async function getProductsByCollectionFromDB(collection: string): Promise
   try {
     const products = await prisma.product.findMany({
       where: {
-        collection: collection,
+        OR: [
+          { collection: collection },
+          {
+            collections: {
+              some: {
+                collection: {
+                  name: collection,
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        collections: {
+          include: {
+            collection: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -84,7 +119,10 @@ export async function getProductsByCollectionFromDB(collection: string): Promise
 
     return products.map(prismaToProduct);
   } catch (error) {
-    console.error(`[products-db.ts] Error fetching products for collection ${collection}:`, error);
+    console.error(
+      `[products-db.ts] Error fetching products for collection ${collection}:`,
+      error
+    );
     return [];
   }
 }
@@ -149,6 +187,27 @@ export async function getAllProductIdsFromDB(): Promise<string[]> {
  */
 export async function createProductInDB(product: Product): Promise<Product> {
   try {
+    const collectionNames =
+      product.collections && product.collections.length > 0
+        ? product.collections
+        : [product.collection];
+
+    const collections = await prisma.collection.findMany({
+      where: {
+        name: {
+          in: collectionNames,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (collections.length !== collectionNames.length) {
+      throw new Error('One or more selected collections were not found');
+    }
+
     const createdProduct = await prisma.product.create({
       data: {
         id: product.id,
@@ -160,8 +219,24 @@ export async function createProductInDB(product: Product): Promise<Product> {
         sizes: product.sizes || [],
         inStock: product.inStock,
         sku: product.sku,
-        collection: product.collection,
+        collection: collectionNames[0],
         searchKeywords: product.searchKeywords || [],
+        collections: {
+          create: collections.map((collection) => ({
+            collection: {
+              connect: {
+                id: collection.id,
+              },
+            },
+          })),
+        },
+      },
+      include: {
+        collections: {
+          include: {
+            collection: true,
+          },
+        },
       },
     });
 
@@ -177,21 +252,72 @@ export async function createProductInDB(product: Product): Promise<Product> {
  */
 export async function updateProductInDB(id: string, product: Product): Promise<Product> {
   try {
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: {
-        name: product.name,
-        price: product.price,
-        compareAtPrice: product.compareAtPrice,
-        description: product.description,
-        images: product.images || [],
-        sizes: product.sizes || [],
-        inStock: product.inStock,
-        sku: product.sku,
-        collection: product.collection,
-        searchKeywords: product.searchKeywords || [],
+    const collectionNames =
+      product.collections && product.collections.length > 0
+        ? product.collections
+        : [product.collection];
+
+    const collections = await prisma.collection.findMany({
+      where: {
+        name: {
+          in: collectionNames,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
       },
     });
+
+    if (collections.length !== collectionNames.length) {
+      throw new Error('One or more selected collections were not found');
+    }
+
+    const updatedProduct = await prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id },
+        data: {
+          name: product.name,
+          price: product.price,
+          compareAtPrice: product.compareAtPrice,
+          description: product.description,
+          images: product.images || [],
+          sizes: product.sizes || [],
+          inStock: product.inStock,
+          sku: product.sku,
+          collection: collectionNames[0],
+          searchKeywords: product.searchKeywords || [],
+        },
+      });
+
+      await tx.productCollection.deleteMany({
+        where: {
+          productId: id,
+        },
+      });
+
+      await tx.productCollection.createMany({
+        data: collections.map((collection) => ({
+          productId: id,
+          collectionId: collection.id,
+        })),
+      });
+
+      return tx.product.findUnique({
+        where: { id },
+        include: {
+          collections: {
+            include: {
+              collection: true,
+            },
+          },
+        },
+      });
+    });
+
+    if (!updatedProduct) {
+      throw new Error('Product not found after update');
+    }
 
     return prismaToProduct(updatedProduct);
   } catch (error) {
@@ -214,4 +340,3 @@ export async function deleteProductFromDB(id: string): Promise<boolean> {
     return false;
   }
 }
-

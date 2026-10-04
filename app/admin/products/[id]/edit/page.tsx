@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -27,6 +27,9 @@ export default function EditProductPage() {
     collection: '',
     images: '',
   });
+  const [availableCollections, setAvailableCollections] = useState<
+  { id: string; name: string; slug: string }[]
+>([]);
   const [colors, setColors] = useState<Array<{ value: string; available: boolean; stock: number }>>([
     { value: '', available: true, stock: 0 },
   ]);
@@ -133,6 +136,17 @@ export default function EditProductPage() {
       }
     };
 
+    const fetchCollections = async () => {
+      try {
+        const response = await fetch('/api/products/collections');
+        const data = await response.json();
+        setAvailableCollections(data.items || []);
+      } catch (err) {
+        console.error('Failed to load collections:', err);
+      }
+    };
+
+    fetchCollections();
     fetchProduct();
   }, [productId]);
 
@@ -342,7 +356,7 @@ export default function EditProductPage() {
                   href="/admin/products"
                   className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  ← Back to Products
+                  â† Back to Products
                 </Link>
                 <Link
                   href="/"
@@ -458,7 +472,7 @@ export default function EditProductPage() {
 
                   <div>
                     <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                      Price (₹) *
+                      Price (â‚¹) *
                     </label>
                     <input
                       id="price"
@@ -474,7 +488,7 @@ export default function EditProductPage() {
 
                   <div>
                     <label htmlFor="compareAtPrice" className="block text-sm font-medium text-gray-700 mb-2">
-                      Compare At Price (₹)
+                      Compare At Price (â‚¹)
                     </label>
                     <input
                       id="compareAtPrice"
@@ -575,7 +589,7 @@ export default function EditProductPage() {
                         Select one or more images from your computer (max 10MB each)
                         {pendingFiles.length > 0 && (
                           <span className="ml-2 text-gray-700 font-medium">
-                            • {pendingFiles.length} more image{pendingFiles.length > 1 ? 's' : ''} waiting
+                            â€¢ {pendingFiles.length} more image{pendingFiles.length > 1 ? 's' : ''} waiting
                           </span>
                         )}
                       </p>
@@ -781,4 +795,3 @@ export default function EditProductPage() {
     </AdminGuard>
   );
 }
-

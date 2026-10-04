@@ -71,6 +71,24 @@ model User {
 }
 
 // ============================================
+// COLLECTION MODEL
+// ============================================
+
+model Collection {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  products ProductCollection[]
+
+  @@index([name])
+  @@index([slug])
+  @@map("collections")
+}
+
+// ============================================
 // PRODUCT MODEL
 // ============================================
 
@@ -85,6 +103,7 @@ model Product {
   inStock        Boolean  @default(true) @map("in_stock")
   sku            String   @unique
   collection     String
+  collections    ProductCollection[]
   searchKeywords Json?   @map("search_keywords") // Array of strings
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
@@ -97,6 +116,23 @@ model Product {
   @@index([sku])
   @@index([inStock])
   @@map("products")
+}
+
+// ============================================
+// PRODUCT ↔ COLLECTION
+// ============================================
+
+model ProductCollection {
+  productId    String   @map("product_id")
+  collectionId String   @map("collection_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@index([collectionId])
+  @@map("product_collections")
 }
 
 // ============================================

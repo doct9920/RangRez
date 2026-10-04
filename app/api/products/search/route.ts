@@ -30,7 +30,9 @@ export async function GET(request: NextRequest) {
 
     // Apply filters
     if (collection) {
-      products = products.filter((p) => p.collection === collection);
+      products = products.filter(
+  (p) => p.collection === collection || p.collections?.includes(collection)
+);
     }
     if (minPrice !== undefined) {
       products = products.filter((p) => p.price >= minPrice);

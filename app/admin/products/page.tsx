@@ -217,7 +217,9 @@ export default function AdminProductsPage() {
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {product.collection}
+                              {product.collections && product.collections.length > 0
+  ? product.collections.join(' · ')
+  : product.collection}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <Link

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminGuard from '@/components/AdminGuard';
 import Link from 'next/link';
@@ -13,14 +13,24 @@ export default function NewProductPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    compareAtPrice: '',
-    description: '',
-    sku: '',
-    collection: '',
-    images: '',
-  });
+  name: '',
+  price: '',
+  compareAtPrice: '',
+  description: '',
+  sku: '',
+  collections: [] as string[],
+  images: '',
+});
+const [availableCollections, setAvailableCollections] = useState<
+  { id: string; name: string; slug: string }[]
+>([]);
+
+useEffect(() => {
+  fetch('/api/products/collections')
+    .then((res) => res.json())
+    .then((data) => setAvailableCollections(data.items || []))
+    .catch((err) => console.error('Failed to load collections:', err));
+}, []);
   const [colors, setColors] = useState<Array<{ value: string; available: boolean; stock: number }>>([
     { value: '', available: true, stock: 0 },
   ]);
@@ -291,9 +301,9 @@ export default function NewProductPage() {
           compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : undefined,
           description: formData.description,
           sku: formData.sku,
-          collection: formData.collection,
-          images: allImages,
-          sizes: validColors,
+          collections: formData.collections,
+images: allImages,
+sizes: validColors,
         }),
       });
 
@@ -462,24 +472,56 @@ export default function NewProductPage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label htmlFor="collection" className="block text-sm font-medium text-gray-700 mb-2">
-                    Collection *
-                  </label>
-                  <select
-                    id="collection"
-                    value={formData.collection}
-                    onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
-                  >
-                    <option value="">Select Collection</option>
-                    <option value="New Arrivals">New Arrivals</option>
-                    {shopCategories.map((category) => (
-                      <option key={category.slug} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Collections *
+  </label>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-gray-200 rounded-lg p-4 bg-white">
+    {availableCollections.map((collection) => (
+      <label
+        key={collection.id}
+        className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
+      >
+        <input
+          type="checkbox"
+          checked={formData.collections.includes(collection.name)}
+          onChange={(e) => {
+            const updatedCollections = e.target.checked
+              ? [...formData.collections, collection.name]
+              : formData.collections.filter(
+                  (name) => name !== collection.name
+                );
+
+            setFormData({
+              ...formData,
+              collections: updatedCollections,
+            });
+          }}
+          className="h-4 w-4"
+        />
+
+        <span className="text-sm font-medium text-gray-800">
+          {collection.name}
+        </span>
+      </label>
+    ))}
+  </div>
+
+  {formData.collections.length === 0 && (
+    <p className="mt-2 text-sm text-red-600">
+      कम से कम एक collection चुनें।
+    </p>
+  )}
+
+  <Link
+    href="/admin/collections"
+    className="inline-block mt-3 text-sm text-blue-600 hover:underline"
+  >
+    + Create New Collection
+  </Link>
+</div>
                 </div>
 
                 <div className="md:col-span-2">
@@ -715,7 +757,7 @@ export default function NewProductPage() {
                   </p>
                 </div>
               </div>
-
+</div>
               <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
                 <Link
                   href="/admin/products"

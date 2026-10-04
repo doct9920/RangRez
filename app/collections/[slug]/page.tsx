@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getAllProductsFromDB, getProductsByCollectionFromDB } from '@/lib/products-db';
+import { prisma } from '@/lib/prisma';
 import ProductReviewStars from '@/components/ProductReviewStars';
 import { shopCategories } from '@/lib/categories';
 
@@ -40,7 +41,20 @@ const collectionInfo: Record<string, { name: string; description: string }> = {
 };
 
 export async function generateStaticParams() {
-  return Object.keys(collectionInfo).map((slug) => ({
+  const collections = await prisma.collection.findMany({
+    select: {
+      slug: true,
+    },
+  });
+
+  const staticSlugs = Object.keys(collectionInfo);
+
+  return Array.from(
+    new Set([
+      ...staticSlugs,
+      ...collections.map((collection) => collection.slug),
+    ])
+  ).map((slug) => ({
     slug,
   }));
 }
@@ -50,11 +64,22 @@ export default async function CollectionPage({
 }: {
   params: { slug: string };
 }) {
-  const collectionData = collectionInfo[params.slug];
+  const dbCollection = await prisma.collection.findUnique({
+  where: { slug: params.slug },
+});
 
-  if (!collectionData) {
-    notFound();
-  }
+const collectionData = dbCollection
+  ? {
+      name: dbCollection.name,
+      description:
+        collectionInfo[params.slug]?.description ||
+        `Explore our ${dbCollection.name} collection.`,
+    }
+  : collectionInfo[params.slug];
+
+if (!collectionData) {
+  notFound();
+}
 
   // Phase 4: Get products from database by collection
   // No product carries the literal collection "New Arrivals"; it is simply the

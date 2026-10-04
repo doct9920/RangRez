@@ -1,4 +1,4 @@
-// Shared product data - will be replaced with API in future
+﻿// Shared product data - will be replaced with API in future
 export interface Product {
   id: string;
   name: string;
@@ -10,6 +10,7 @@ export interface Product {
   inStock: boolean;
   sku: string;
   collection: string;
+  collections?: string[];
   searchKeywords?: string[]; // For search functionality
 }
 
@@ -514,4 +515,3 @@ export function getCollections(): string[] {
   });
   return Array.from(collections).sort();
 }
-

@@ -30,15 +30,33 @@ export async function POST(request: NextRequest) {
     requireAdmin(token);
 
     const body = await request.json();
-    const { name, price, compareAtPrice, description, images, sizes, sku, collection, searchKeywords } = body;
+    const {
+  name,
+  price,
+  compareAtPrice,
+  description,
+  images,
+  sizes,
+  sku,
+  collection,
+  collections,
+  searchKeywords,
+} = body;
+
+const selectedCollections: string[] =
+  Array.isArray(collections) && collections.length > 0
+    ? collections
+    : collection
+      ? [collection]
+      : [];
 
     // Validation
-    if (!name || !price || !description || !sku || !collection) {
-      return NextResponse.json(
-        { error: 'Name, price, description, SKU, and collection are required' },
-        { status: 400 }
-      );
-    }
+    if (!name || !price || !description || !sku || selectedCollections.length === 0) {
+  return NextResponse.json(
+    { error: 'Name, price, description, SKU, and at least one collection are required' },
+    { status: 400 }
+  );
+}
 
     // Generate ID
     const id = `product_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -65,7 +83,8 @@ export async function POST(request: NextRequest) {
       sizes: sizes || [],
       inStock: sizes?.some((s: any) => s.available && s.stock > 0) || false,
       sku,
-      collection,
+      collection: selectedCollections[0],
+collections: selectedCollections,
       searchKeywords: searchKeywords || [],
     };
 
