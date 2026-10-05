@@ -1,0 +1,44 @@
+{
+  "typography": {
+    "headings": {
+      "font_family": "Plus Jakarta Sans, sans-serif",
+      "weights": ["600", "700", "800"],
+      "letter_spacing": "tracking-tight"
+    },
+    "body": {
+      "font_family": "Inter, sans-serif",
+      "weights": ["400", "500"]
+    }
+  },
+  "colors": {
+    "archetype": "ORGANIC & EARTHY / MODERN SAAS",
+    "primary": "#4F46E5",
+    "primary_hover": "#4338CA",
+    "background": "#F8FAFC",
+    "card_background": "#FFFFFF",
+    "text_primary": "#0F172A",
+    "text_secondary": "#64748B",
+    "border": "#E2E8F0",
+    "success": "#10B981",
+    "error": "#EF4444"
+  },
+  "surface_strategies": {
+    "cards": "Subtle border with flat clean white background, hover lift shadow, rounded-xl",
+    "header": "Solid background or solid glass with backdrop-blur-md and solid border-b border-slate-200"
+  },
+  "component_path": "/app/frontend/src/components/",
+  "instructions_to_main_agent": [
+    "Ensure all interactive and key informational elements include a `data-testid` attribute for robust automated testing.",
+    "Implement full form state preservation in the New Product form when navigating to Create New Collection and back.",
+    "Ensure newly created collection appears immediately in All Collections and is automatically selected upon returning to the New Product form.",
+    "Use Sonner for toast notifications and Shadcn primitives for UI components.",
+    "Ensure there are no transparent headers or dropdowns without solid backgrounds.",
+    "Use .js/.jsx files as standard in this React app."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Avoid generic AI slop aesthetic; use deliberate spacing, crisp borders, and refined color harmony.",
+    "Ensure generous padding (p-6, p-8) on cards and containers.",
+    "Include hover states and micro-interactions on all buttons and inputs.",
+    "Never use universal transition: all; apply specific property transitions."
+  ]
+}
