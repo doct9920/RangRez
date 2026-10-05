@@ -58,3 +58,11 @@ Users adding a product need to create a new collection without losing the produc
 1. Build collection detail pages with the linked product list.
 2. Add product editing and deletion with count recalculation.
 3. Add search/filter controls once the catalog has more entries.
+## Update - Emergent Google Auth integrated (2026-02)
+- Login page at /login with Google sign-in button
+- /auth/session (POST) exchanges Emergent session_id for session_token, creates/updates user, stores session (7d), sets httpOnly secure cookie samesite=none
+- /auth/me (GET) returns current user; /auth/logout (POST) deletes session + clears cookie
+- All catalog endpoints (/collections, /products) now require authentication (401 for unauth)
+- Frontend ProtectedRoute + AuthCallback (useLocation().hash) with race-condition safe routing
+- Sidebar shows user name/avatar/email + logout button
+- Draft preservation and auto-select of new collection still intact
