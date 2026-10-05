@@ -12,6 +12,14 @@ export default function NewProductPage() {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [availableCollections, setAvailableCollections] = useState<
+  Array<{ id: string; name: string; slug: string }>
+>([]);
+
+const [showCreateCollection, setShowCreateCollection] = useState(false);
+const [newCollectionName, setNewCollectionName] = useState('');
+const [collectionError, setCollectionError] = useState('');
+const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [formData, setFormData] = useState({
   name: '',
   price: '',
@@ -21,16 +29,74 @@ export default function NewProductPage() {
   collections: [] as string[],
   images: '',
 });
-const [availableCollections, setAvailableCollections] = useState<
-  { id: string; name: string; slug: string }[]
->([]);
-
 useEffect(() => {
   fetch('/api/products/collections')
     .then((res) => res.json())
     .then((data) => setAvailableCollections(data.items || []))
     .catch((err) => console.error('Failed to load collections:', err));
 }, []);
+ const handleCreateCollection = async () => {
+  const name = newCollectionName.trim();
+
+  if (!name) {
+    setCollectionError('Collection name is required');
+    return;
+  }
+
+  setIsCreatingCollection(true);
+  setCollectionError('');
+
+  try {
+    const token = localStorage.getItem('rangrez_token');
+
+    const response = await fetch('/api/admin/collections', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create collection');
+    }
+
+    const createdCollection = data.collection;
+
+    setAvailableCollections((prev) => {
+      const exists = prev.some(
+        (collection) => collection.id === createdCollection.id
+      );
+
+      if (exists) return prev;
+
+      return [...prev, createdCollection].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      collections: prev.collections.includes(createdCollection.name)
+        ? prev.collections
+        : [...prev.collections, createdCollection.name],
+    }));
+
+    setNewCollectionName('');
+    setCollectionError('');
+    setShowCreateCollection(false);
+  } catch (err: any) {
+    console.error('Error creating collection:', err);
+    setCollectionError(
+      err.message || 'Failed to create collection'
+    );
+  } finally {
+    setIsCreatingCollection(false);
+  }
+};
   const [colors, setColors] = useState<Array<{ value: string; available: boolean; stock: number }>>([
     { value: '', available: true, stock: 0 },
   ]);
@@ -455,7 +521,6 @@ sizes: validColors,
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
                   />
                 </div>
-
                 <div>
                   <label htmlFor="compareAtPrice" className="block text-sm font-medium text-gray-700 mb-2">
                     Compare At Price (₹)
@@ -515,12 +580,17 @@ sizes: validColors,
     </p>
   )}
 
-  <Link
-    href="/admin/collections"
-    className="inline-block mt-3 text-sm text-blue-600 hover:underline"
-  >
-    + Create New Collection
-  </Link>
+  <button
+  type="button"
+  onClick={() => {
+  setNewCollectionName('');
+  setCollectionError('');
+  setShowCreateCollection(true);
+}}
+  className="mt-3 text-sm text-blue-600 hover:underline"
+>
+  + Create New Collection
+</button>
 </div>
                 </div>
 
@@ -779,7 +849,82 @@ sizes: validColors,
           </div>
         </main>
       </div>
+     {/* Create Collection Modal */}
+{showCreateCollection && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Create New Collection
+        </h2>
 
+        <button
+          type="button"
+          onClick={() => setShowCreateCollection(false)}
+          disabled={isCreatingCollection}
+          className="text-2xl leading-none text-gray-500 hover:text-gray-900"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="p-6">
+        <label
+          htmlFor="new-collection-name"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
+          Collection Name
+        </label>
+
+        <input
+          id="new-collection-name"
+          type="text"
+          value={newCollectionName}
+          onChange={(e) => {
+            setNewCollectionName(e.target.value);
+            setCollectionError('');
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleCreateCollection();
+            }
+          }}
+          placeholder="e.g. Festive Collection"
+          autoFocus
+          disabled={isCreatingCollection}
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        />
+
+        {collectionError && (
+          <p className="mt-2 text-sm text-red-600">
+            {collectionError}
+          </p>
+        )}
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setShowCreateCollection(false)}
+            disabled={isCreatingCollection}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+          >
+            Back
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCreateCollection}
+            disabled={isCreatingCollection}
+            className="rounded-lg bg-gray-900 px-4 py-2 text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCreatingCollection ? 'Saving...' : 'Save Collection'}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       {/* Image Cropper Modal */}
       {imageToCrop && (
         <ImageCropper
