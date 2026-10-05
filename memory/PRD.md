@@ -34,6 +34,11 @@ Users adding a product need to create a new collection without losing the produc
 - Added product-to-collection linkage and product count updates.
 - Verified desktop/mobile flow, API linkage, validation, and no horizontal overflow through end-to-end QA.
 
+### 2026-10-05 — Rangrez update
+- Rebranded the catalog workspace as Rangrez across navigation, page metadata, and flow copy.
+- Added backend validation to reject negative prices and nonexistent collection links.
+- Added stable page heading test IDs for the product, collection creation, and all collections views.
+
 ## Prioritized backlog
 
 ### P0

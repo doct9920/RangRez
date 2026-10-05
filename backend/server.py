@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -49,7 +49,7 @@ class Collection(CollectionCreate):
 class ProductCreate(BaseModel):
     name: str
     sku: Optional[str] = ""
-    price: float
+    price: float = Field(ge=0)
     description: Optional[str] = ""
     collection_id: Optional[str] = None
 
@@ -97,7 +97,6 @@ async def get_collections():
 @api_router.post("/collections", response_model=Collection)
 async def create_collection(input: CollectionCreate):
     if not input.name.strip():
-        from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Collection name is required")
     collection = Collection(name=input.name.strip(), description=(input.description or "").strip())
     doc = collection.model_dump()
@@ -116,8 +115,11 @@ async def get_products():
 @api_router.post("/products", response_model=Product)
 async def create_product(input: ProductCreate):
     if not input.name.strip():
-        from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Product name is required")
+    if input.collection_id:
+        collection = await db.collections.find_one({"id": input.collection_id}, {"_id": 0, "id": 1})
+        if not collection:
+            raise HTTPException(status_code=400, detail="Selected collection does not exist")
     product = Product(name=input.name.strip(), sku=(input.sku or "").strip(), price=input.price,
                       description=(input.description or "").strip(), collection_id=input.collection_id)
     doc = product.model_dump()
