@@ -111,80 +111,186 @@ export default function HomepageSettingsPage() {
       setError(err.message || 'Failed to process image');
     }
   };
+  const saveHomepageSettings = async (
+  updatedFormData: Record<string, string>
+) => {
+  const token = localStorage.getItem('rangrez_token');
 
-  const handleCropComplete = async (croppedImage: string, type: string) => {
-    setImageToCrop(null);
-    setError('');
-    setIsUploading(true);
+  if (!token) {
+    throw new Error('Admin session expired. Please login again.');
+  }
 
-    try {
-      // Store the CDN URL rather than the image itself: base64 in the database
-      // ends up inlined into every page's HTML.
-      const url = await uploadImageToCdn(croppedImage, {
-        fileName: `${type}-${Date.now()}`,
-        folder: type.startsWith('heroSlide') ? 'hero' : 'collections',
-      });
-      setFormData((prev) => ({ ...prev, [type]: url }));
-    } catch (err: any) {
-      setError(err.message || 'Image upload failed');
-    } finally {
-      setIsUploading(false);
+  const collectionImages: Record<string, string> = {};
+
+  shopCategories.forEach((category) => {
+    const image = updatedFormData[category.slug];
+
+    if (image && image.trim()) {
+      collectionImages[category.slug] = image;
     }
-  };
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setError('');
-    setSuccess('');
+  const heroSlides = [
+    updatedFormData.heroSlide1,
+    updatedFormData.heroSlide2,
+    updatedFormData.heroSlide3,
+  ].filter(
+    (image): image is string => Boolean(image && image.trim())
+  );
 
-    try {
-      const token = localStorage.getItem('rangrez_token');
-      
-      // Build collection images object, only including non-empty values
-      const collectionImages: Record<string, string> = {};
-      shopCategories.forEach((category) => {
-        if (formData[category.slug]) {
-          collectionImages[category.slug] = formData[category.slug];
-        }
-      });
+  const response = await fetch('/api/admin/homepage-settings', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      heroSlides,
+      collectionImages,
+    }),
+  });
 
-      const updateData = {
-        heroSlides: [formData.heroSlide1, formData.heroSlide2, formData.heroSlide3].filter(Boolean),
-        collectionImages: Object.keys(collectionImages).length > 0 ? collectionImages : {},
-      };
+  const result = await response.json();
 
-      console.log('[Homepage Settings] Updating with data:', {
-        heroSlideCount: updateData.heroSlides.length,
-        collectionImagesCount: Object.keys(updateData.collectionImages).length,
-      });
+  if (!response.ok) {
+    throw new Error(
+      result?.error || `Failed to save image (${response.status})`
+    );
+  }
 
-      const response = await fetch('/api/admin/homepage-settings', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(updateData),
-      });
+  return result.settings;
+};
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('API Error Response:', errorData);
-        throw new Error(errorData.error || `Failed to update homepage settings (${response.status})`);
+  const handleCropComplete = async (
+  croppedImage: string,
+  type: string
+) => {
+  setImageToCrop(null);
+  setError('');
+  setSuccess('');
+  setIsUploading(true);
+
+  try {
+    // 1. ImageKit par upload
+    const url = await uploadImageToCdn(croppedImage, {
+      fileName: `${type}-${Date.now()}`,
+      folder: type.startsWith('heroSlide') ? 'hero' : 'collections',
+    });
+
+    // 2. Current form data + new image
+    const updatedFormData = {
+      ...formData,
+      [type]: url,
+    };
+
+    // 3. Screen par image show karo
+    setFormData(updatedFormData);
+
+    // 4. Database me immediately save karo
+    const savedSettings = await saveHomepageSettings(updatedFormData);
+
+    // 5. Database ke saved data ke saath state sync karo
+    setSettings(savedSettings);
+
+    setSuccess('Image uploaded and permanently saved!');
+
+    console.log('IMAGE PERMANENTLY SAVED:', {
+      type,
+      url,
+    });
+
+  } catch (err: any) {
+    console.error('IMAGE SAVE ERROR:', err);
+    setError(err.message || 'Image upload/save failed');
+  } finally {
+    setIsUploading(false);
+  }
+};
+
+  const handleSubmit = async () => {
+  if (isSaving) return;
+
+  setIsSaving(true);
+  setError('');
+  setSuccess('');
+
+  try {
+    const token = localStorage.getItem('rangrez_token');
+
+    if (!token) {
+      throw new Error('Admin session expired. Please login again.');
+    }
+
+    const collectionImages: Record<string, string> = {};
+
+    shopCategories.forEach((category) => {
+      const image = formData[category.slug];
+
+      if (image && image.trim()) {
+        collectionImages[category.slug] = image;
       }
+    });
 
-      setSuccess('Homepage settings updated successfully!');
-      setTimeout(() => {
-        router.push('/');
-      }, 1500);
-    } catch (err: any) {
-      console.error('Error updating homepage settings:', err);
-      setError(err.message || 'Failed to update homepage settings');
-    } finally {
-      setIsSaving(false);
+    const heroSlides = [
+      formData.heroSlide1,
+      formData.heroSlide2,
+      formData.heroSlide3,
+    ].filter(
+      (image): image is string => Boolean(image && image.trim())
+    );
+
+    const updateData = {
+      heroSlides,
+      collectionImages,
+    };
+
+    console.log('SAVE START:', updateData);
+
+    const response = await fetch('/api/admin/homepage-settings', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updateData),
+    });
+
+    const result = await response.json();
+
+    console.log('SAVE RESPONSE:', result);
+
+    if (!response.ok) {
+      throw new Error(
+        result?.error || `Save failed (${response.status})`
+      );
     }
-  };
+
+    // Database se jo save hua hai wahi frontend state me rakho
+    if (result.settings) {
+      setSettings(result.settings);
+
+      setFormData({
+        heroSlide1: result.settings.heroSlides?.[0] || '',
+        heroSlide2: result.settings.heroSlides?.[1] || '',
+        heroSlide3: result.settings.heroSlides?.[2] || '',
+        ...Object.fromEntries(
+          shopCategories.map((category) => [
+            category.slug,
+            result.settings.collectionImages?.[category.slug] || '',
+          ])
+        ),
+      });
+    }
+
+    setSuccess('Images permanently saved successfully!');
+
+  } catch (err: any) {
+    console.error('SAVE ERROR:', err);
+    setError(err.message || 'Failed to save homepage settings');
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const renderImagePreview = (image: string, type: string) => {
     if (!image) {
@@ -307,7 +413,7 @@ export default function HomepageSettingsPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-8">
                   {/* Hero Slideshow */}
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -402,14 +508,18 @@ export default function HomepageSettingsPage() {
                       Cancel
                     </Link>
                     <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSaving ? 'Saving...' : 'Save Changes'}
-                    </button>
+  type="button"
+  onClick={() => {
+    console.log('SAVE BUTTON CLICKED');
+    handleSubmit();
+  }}
+  disabled={isSaving || isUploading}
+  className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {isSaving ? 'Saving...' : 'Save Changes'}
+</button>
                   </div>
-                </form>
+                </div>
               </div>
             </div>
           )}

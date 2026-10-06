@@ -7,9 +7,12 @@
  */
 
 import { prisma } from '@/lib/prisma';
-
-export const FREE_SHIPPING_THRESHOLD = 2000;
-export const SHIPPING_FEE = 99;
+import {
+  calculateShipping,
+  getPincodeLocation,
+  getPincodeCoordinates,
+  calculateDistance,
+} from '@/lib/shipping';
 
 export interface CartLine {
   productId: string;
@@ -37,7 +40,11 @@ export interface PricedOrder {
   items: PricedLine[];
 }
 
-export async function priceCart(lines: CartLine[]): Promise<PricedOrder> {
+export async function priceCart(
+  lines: CartLine[],
+  pincode: string,
+  deliveryMethod: 'standard' | 'air' = 'standard'
+): Promise<PricedOrder> {
   if (!Array.isArray(lines) || lines.length === 0) {
     throw new Error('Cart is empty');
   }
@@ -77,7 +84,26 @@ export async function priceCart(lines: CartLine[]): Promise<PricedOrder> {
     });
   }
 
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  const location = await getPincodeLocation(pincode);
+
+let shipping: number;
+
+if (deliveryMethod === 'air') {
+  shipping = 175;
+} else {
+  const coordinates = await getPincodeCoordinates(
+    location.pincode,
+    location.state,
+    location.city
+  );
+
+  const distance = calculateDistance(
+    coordinates.latitude,
+    coordinates.longitude
+  );
+
+  shipping = calculateShipping(subtotal, distance);
+}
   const total = subtotal + shipping;
 
   return {

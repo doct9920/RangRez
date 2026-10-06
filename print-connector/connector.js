@@ -4,8 +4,15 @@ const fs = require("fs");
 const path = require("path");
 const { print } = require("pdf-to-printer");
 
-const API_URL = "https://rangrez.club";
-const PRINT_TOKEN = process.env.PRINT_CONNECTOR_TOKEN;
+const API_URL = "https://www.rangrez.club";
+
+const PRINT_TOKEN = fs
+  .readFileSync(path.join(__dirname, "token.txt"), "utf8")
+  .trim();
+
+if (!PRINT_TOKEN) {
+  throw new Error("Print connector token is empty.");
+}
 
 function createLabel(shippingAddress, jobId) {
   return new Promise((resolve, reject) => {
@@ -106,7 +113,7 @@ async function claimAndPrint() {
     console.log("Label created:", pdfPath);
 
     await print(pdfPath, {
-      printer: "Microsoft Print to PDF",
+     printer: "Canon E470 series"
     });
 
     console.log("Print job sent successfully.");

@@ -14,9 +14,9 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isOrderComplete, setIsOrderComplete] = useState(false);
+  const [shipping, setShipping] = useState(0);
 
   const subtotal = getTotal();
-  const shipping = subtotal >= 2000 ? 0 : 99;
   const total = subtotal + shipping;
 
   useEffect(() => {
@@ -68,6 +68,7 @@ export default function CheckoutPage() {
               total={total}
               subtotal={subtotal}
               shipping={shipping}
+              onShippingChange={setShipping}
               items={items}
               onOrderSuccess={handleOrderSuccess}
               isProcessing={isProcessing}

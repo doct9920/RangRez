@@ -60,12 +60,21 @@ export interface CreatedRazorpayOrder {
 /** Asks the server to open a Razorpay order for the given cart. */
 export const createRazorpayOrder = async (
   items: Array<{ productId: string; quantity: number }>,
-  orderId?: string
+  orderId?: string,
+  pincode?: string,
+  deliveryMethod?: 'standard' | 'air'
 ): Promise<CreatedRazorpayOrder> => {
   const response = await fetch('/api/razorpay/create-order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items, orderId }),
+    body: JSON.stringify({
+  items,
+  orderId,
+  shippingAddress: {
+    pincode,
+  },
+  deliveryMethod,
+}),
   });
 
   const data = await response.json().catch(() => ({}));

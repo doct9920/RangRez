@@ -19,18 +19,22 @@ import { queuePrintJob } from '@/lib/print-jobs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, shippingAddress, paymentMethod } = body as {
+    const { items, shippingAddress, paymentMethod, deliveryMethod } = body as {
       items?: Array<{ productId: string; quantity: number; size?: string }>;
       shippingAddress?: Record<string, string>;
       paymentMethod?: 'razorpay' | 'cod';
+      deliveryMethod?: 'standard' | 'air';
     };
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
-    if (paymentMethod !== 'razorpay' && paymentMethod !== 'cod') {
-      return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 });
-    }
+    if (deliveryMethod !== 'standard' && deliveryMethod !== 'air') {
+  return NextResponse.json(
+    { error: 'Invalid delivery method' },
+    { status: 400 }
+  );
+}
 
     const required = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode'];
     const missing = required.filter((field) => !shippingAddress?.[field]?.trim());
@@ -41,7 +45,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const priced = await priceCart(items);
+    const priced = await priceCart(
+  items,
+  shippingAddress!.pincode,
+  deliveryMethod
+);
 
     // A signed-in customer's order is linked to their account; a guest's is
     // matched later by the email they checked out with.
@@ -58,7 +66,7 @@ export async function POST(request: NextRequest) {
         userEmail,
         // Confirmed only once payment is verified (or on delivery for COD).
         status: 'pending',
-        paymentMethod,
+       paymentMethod: paymentMethod!,
         paymentStatus: 'pending',
         subtotal: new Prisma.Decimal(priced.subtotal),
         shipping: new Prisma.Decimal(priced.shipping),

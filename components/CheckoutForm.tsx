@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { initiateRazorpayPayment, createRazorpayOrder, verifyRazorpayPayment } from '@/lib/razorpay';
 import { useAuth } from '@/contexts/AuthContext';
 import { CartItem } from '@/contexts/CartContext';
@@ -9,6 +9,7 @@ interface CheckoutFormProps {
   total: number;
   subtotal: number;
   shipping: number;
+  onShippingChange: (shipping: number) => void;
   items: CartItem[];
   onOrderSuccess: (orderId: string) => void;
   isProcessing: boolean;
@@ -19,6 +20,7 @@ export default function CheckoutForm({
   total,
   subtotal,
   shipping,
+  onShippingChange,
   items,
   onOrderSuccess,
   isProcessing,
@@ -36,9 +38,67 @@ export default function CheckoutForm({
     pincode: '',
     paymentMethod: 'razorpay' as 'razorpay' | 'cod',
   });
-
+  const [shippingCharge, setShippingCharge] = useState(shipping);
+  const [standardShippingCharge, setStandardShippingCharge] =
+  useState(shipping);
+const [locationLoading, setLocationLoading] = useState(false);
+const [locationError, setLocationError] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState<'standard' | 'air'>(
+  'standard'
+);
   const [errors, setErrors] = useState<Record<string, string>>({});
+ useEffect(() => {
+  const pincode = formData.pincode.trim();
 
+  if (!/^\d{6}$/.test(pincode)) {
+    setShippingCharge(shipping);
+    onShippingChange(shipping);
+    setLocationError('');
+    return;
+  }
+
+  const checkPincode = async () => {
+    try {
+      setLocationLoading(true);
+      setLocationError('');
+
+      const response = await fetch(
+        `/api/shipping?pincode=${encodeURIComponent(pincode)}&subtotal=${subtotal}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Unable to calculate shipping');
+      }
+
+      const data = await response.json();
+
+      const state = data.state || '';
+      const city = data.city || '';
+      const standardShipping = Number(data.shipping);
+
+      setFormData((prev) => ({
+        ...prev,
+        state,
+        city,
+      }));
+
+      setStandardShippingCharge(standardShipping);
+setShippingCharge(standardShipping);
+
+if (deliveryMethod === 'standard') {
+  onShippingChange(standardShipping);
+}
+    } catch {
+      setShippingCharge(shipping);
+      onShippingChange(shipping);
+      setLocationError('Unable to calculate shipping');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  checkPincode();
+}, [formData.pincode, subtotal, shipping]);
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -135,7 +195,6 @@ export default function CheckoutForm({
     }
 
     setIsProcessing(true);
-
     try {
       // The server prices the cart and writes the order, for guests as well
       // as signed-in customers, before any payment is attempted.
@@ -147,6 +206,7 @@ export default function CheckoutForm({
         },
         body: JSON.stringify({
           paymentMethod: formData.paymentMethod,
+          deliveryMethod,
           items: items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -176,13 +236,15 @@ export default function CheckoutForm({
         try {
           // The server prices the cart and opens the Razorpay order; the
           // amount is never taken from the browser.
-          const created = await createRazorpayOrder(
-            items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-            })),
-            orderId
-          );
+         const created = await createRazorpayOrder(
+  items.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+  })),
+  orderId,
+  formData.pincode,
+  deliveryMethod
+);
 
           await initiateRazorpayPayment({
             key: created.keyId,
@@ -423,7 +485,68 @@ export default function CheckoutForm({
           )}
         </div>
       </div>
+      {/* Delivery Method */}
+<div className="mb-8">
+  <h3 className="text-xl font-bold text-gray-900 mb-4">
+    Delivery Method
+  </h3>
 
+  <div className="space-y-3">
+    <label className="flex items-center justify-between border rounded-lg p-4 cursor-pointer">
+      <div className="flex items-center gap-3">
+        <input
+          type="radio"
+          name="deliveryMethod"
+          value="standard"
+          checked={deliveryMethod === 'standard'}
+          onChange={() => {
+  setDeliveryMethod('standard');
+  setShippingCharge(standardShippingCharge);
+  onShippingChange(standardShippingCharge);
+}}
+        />
+        <div>
+          <p className="font-semibold text-gray-900">
+            Standard Delivery
+          </p>
+          <p className="text-sm text-gray-500">
+            Regular delivery
+          </p>
+        </div>
+      </div>
+
+      <span className="font-semibold">
+        {shippingCharge === 0 ? 'FREE' : `₹${shippingCharge}`}
+      </span>
+    </label>
+
+    <label className="flex items-center justify-between border rounded-lg p-4 cursor-pointer">
+      <div className="flex items-center gap-3">
+        <input
+          type="radio"
+          name="deliveryMethod"
+          value="air"
+          checked={deliveryMethod === 'air'}
+        onChange={() => {
+  setDeliveryMethod('air');
+  setShippingCharge(175);
+  onShippingChange(175);
+}}
+        />
+        <div>
+          <p className="font-semibold text-gray-900">
+            Air / Express Delivery
+          </p>
+          <p className="text-sm text-gray-500">
+            Faster delivery
+          </p>
+        </div>
+      </div>
+
+      <span className="font-semibold">₹175</span>
+    </label>
+  </div>
+</div>
       {/* Payment Method */}
       <div className="border-t border-gray-200 pt-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Payment Method</h3>
@@ -473,8 +596,8 @@ export default function CheckoutForm({
         {isProcessing
           ? 'Processing...'
           : formData.paymentMethod === 'cod'
-          ? `Place Order (Pay ₹${total.toLocaleString('en-IN')} on Delivery)`
-          : `Pay ₹${total.toLocaleString('en-IN')}`}
+          ? `Place Order (Pay ₹${(subtotal + shippingCharge).toLocaleString('en-IN')} on Delivery)`
+: `Pay ₹${(subtotal + shippingCharge).toLocaleString('en-IN')}`}
       </button>
     </form>
   );

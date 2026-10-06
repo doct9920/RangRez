@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -16,6 +16,10 @@ export default function CollectionsAdminPage() {
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [editName, setEditName] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
 
   async function loadCollections() {
     try {
@@ -82,6 +86,98 @@ export default function CollectionsAdminPage() {
       setError(err.message || 'Failed to create collection');
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function updateCollection() {
+    if (!editingCollection) return;
+
+    const trimmedName = editName.trim();
+
+    if (!trimmedName) {
+      setError('Collection name is required');
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      setError('');
+      setMessage('');
+
+      const response = await fetch(
+        `/api/admin/collections?id=${encodeURIComponent(editingCollection.id)}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: trimmedName,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update collection');
+      }
+
+      setCollections((current) =>
+        current
+          .map((item) =>
+            item.id === editingCollection.id
+              ? data.collection
+              : item
+          )
+          .sort((a, b) => a.name.localeCompare(b.name))
+      );
+
+      setMessage(`"${data.collection.name}" updated successfully.`);
+      setEditingCollection(null);
+      setEditName('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update collection');
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+  async function deleteCollection(collection: Collection) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${collection.name}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(collection.id);
+      setError('');
+      setMessage('');
+
+      const response = await fetch(
+        `/api/admin/collections?id=${encodeURIComponent(collection.id)}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete collection');
+      }
+
+      setCollections((current) =>
+        current.filter((item) => item.id !== collection.id)
+      );
+
+      setMessage(
+        data.message || `"${collection.name}" deleted successfully.`
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete collection');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -165,15 +261,87 @@ export default function CollectionsAdminPage() {
                     </p>
                   </div>
 
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                    Active
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                      Active
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCollection(collection);
+                        setEditName(collection.name);
+                        setError('');
+                        setMessage('');
+                      }}
+                      className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteCollection(collection)}
+                      disabled={deletingId === collection.id}
+                      className="rounded-lg border border-red-200 px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {deletingId === collection.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {editingCollection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Edit Collection
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Rename this collection.
+            </p>
+
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Collection name"
+              disabled={savingEdit}
+              autoFocus
+              className="mt-5 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
+            />
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingCollection(null);
+                  setEditName('');
+                  setError('');
+                }}
+                disabled={savingEdit}
+                className="rounded-lg border border-gray-300 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={updateCollection}
+                disabled={savingEdit}
+                className="rounded-lg bg-gray-900 px-5 py-2.5 font-medium text-white disabled:opacity-50"
+              >
+                {savingEdit ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

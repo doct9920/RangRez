@@ -24,7 +24,7 @@ export default function EditProductPage() {
     compareAtPrice: '',
     description: '',
     sku: '',
-    collection: '',
+    collections: [] as string[],
     images: '',
   });
   const [availableCollections, setAvailableCollections] = useState<
@@ -118,7 +118,10 @@ export default function EditProductPage() {
           compareAtPrice: data.product.compareAtPrice?.toString() || '',
           description: data.product.description,
           sku: data.product.sku,
-          collection: data.product.collection,
+          collections:
+  data.product.collections?.length > 0
+    ? data.product.collections
+    : [data.product.collection],
           images: '', // Will be handled by imageUrls and uploadedImages
         });
         
@@ -323,7 +326,7 @@ export default function EditProductPage() {
           compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : undefined,
           description: formData.description,
           sku: formData.sku,
-          collection: formData.collection,
+          collections: formData.collections,
           images: allImages,
           sizes: validColors,
         }),
@@ -505,23 +508,34 @@ export default function EditProductPage() {
                     <label htmlFor="collection" className="block text-sm font-medium text-gray-700 mb-2">
                       Collection *
                     </label>
-                    <select
-                      id="collection"
-                      value={formData.collection}
-                      onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
-                    >
-                      <option value="">Select Collection</option>
-                      <option value="New Arrivals">New Arrivals</option>
-                      {shopCategories.map((category) => (
-                        <option key={category.slug} value={category.name}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <div className="space-y-2 border border-gray-300 rounded-lg p-4">
+       {availableCollections.map((collection) => (
+      <label
+      key={collection.id}
+      className="flex items-center gap-3 cursor-pointer"
+    >
+      <input
+        type="checkbox"
+        checked={formData.collections.includes(collection.name)}
+        onChange={(e) => {
+          const updatedCollections = e.target.checked
+            ? [...formData.collections, collection.name]
+            : formData.collections.filter(
+                (name) => name !== collection.name
+              );
 
+          setFormData({
+            ...formData,
+            collections: updatedCollections,
+          });
+        }}
+        className="w-4 h-4"
+      />
+      <span className="text-gray-700">{collection.name}</span>
+    </label>
+  ))}
+</div>
+</div>
                   <div className="md:col-span-2">
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                       Description *

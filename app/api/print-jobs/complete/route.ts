@@ -8,10 +8,7 @@ export async function POST(request: Request) {
     !process.env.PRINT_CONNECTOR_TOKEN ||
     token !== process.env.PRINT_CONNECTOR_TOKEN
   ) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -55,7 +52,10 @@ export async function POST(request: Request) {
       },
       data: {
         status: 'failed',
-        error: typeof error === 'string' ? error : 'Printing failed',
+        error:
+          typeof error === 'string'
+            ? error
+            : 'Printing failed',
       },
     });
 

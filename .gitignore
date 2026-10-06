@@ -1,44 +1,41 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+.env*
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Print Connector secret
+print-connector/token.txt
 
-# testing
-/coverage
+# Android signing key
+android.keystore
 
-# next.js
-/.next/
-/out/
+# Android / Gradle generated files
+.gradle/
+android/app/build/
+app/build/
+app/src/
+gradle/
+build.gradle
+gradle.properties
+gradlew
+gradlew.bat
+settings.gradle
+app-release-*.apk
+store_icon.png
+twa-manifest.json
+manifest-checksum.txt
 
-# production
-/build
+# Local backups and temporary files
+*.backup
+*.edit-backup
+tatus --shortq
+check-migrations.js
+scripts/check-migrations.js
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-.env
-
-# prisma
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
+# Next.js / Node generated files
+.next/
+.vercel/
+node_modules/
 next-env.d.ts
+*.tsbuildinfo
 
-
-/lib/generated/prisma
-
-print-connector/node_modules/
+# Print Connector generated PDFs
 print-connector/*.pdf
+print-connector/node_modules/

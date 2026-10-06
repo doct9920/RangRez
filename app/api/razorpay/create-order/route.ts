@@ -19,19 +19,35 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { items, orderId } = body as {
-      items?: Array<{ productId: string; quantity: number }>;
-      orderId?: string;
-    };
-
+    const { items, orderId, shippingAddress, deliveryMethod } = body as {
+  items?: Array<{ productId: string; quantity: number }>;
+  orderId?: string;
+  shippingAddress?: {
+    pincode?: string;
+  };
+  deliveryMethod?: 'standard' | 'air';
+};
+  if (!shippingAddress?.pincode?.trim()) {
+  return NextResponse.json(
+    { error: 'Valid PIN code is required for shipping calculation.' },
+    { status: 400 }
+  );
+}
+    if (deliveryMethod !== 'standard' && deliveryMethod !== 'air') {
+  return NextResponse.json(
+    { error: 'Valid delivery method is required.' },
+    { status: 400 }
+  );
+}
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
     const priced = await priceCart(
-      items.map((item) => ({ productId: item.productId, quantity: item.quantity }))
-    );
-
+  items,
+  shippingAddress.pincode,
+  deliveryMethod
+);
     const razorpay = getRazorpay();
     const razorpayOrder = await razorpay.orders.create({
       amount: priced.amountInPaise,
