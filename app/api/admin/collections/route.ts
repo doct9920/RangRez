@@ -93,6 +93,19 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
+    if (typeof body.isVisible === 'boolean') {
+  const collection = await prisma.collection.update({
+    where: { id },
+    data: {
+      isVisible: body.isVisible,
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    collection,
+  });
+}
     const name = String(body.name || '').trim();
 
     if (!name) {

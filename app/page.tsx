@@ -3,7 +3,9 @@ import Image from 'next/image';
 import { getHomepageSettingsFromDB } from '@/lib/homepage-settings-db';
 import HeroSlideshow from '@/components/HeroSlideshow';
 import CategoryCarousel from '@/components/CategoryCarousel';
-import { shopCategories } from '@/lib/categories';
+import { categoryBySlug } from '@/lib/categories';
+import type { ShopCategory } from '@/lib/categories';
+import { prisma } from '@/lib/prisma';
 import ProductCarousel from '@/components/ProductCarousel';
 import TrustHighlights from '@/components/TrustHighlights';
 import Testimonials from '@/components/Testimonials';
@@ -43,6 +45,21 @@ export default async function Home() {
       ? [settings.heroBannerImage]
       : [];
   const collectionImages = settings?.collectionImages || {};
+  const dbCollections = await prisma.collection.findMany({
+  where: {
+    isVisible: true,
+  },
+  orderBy: {
+    name: 'asc',
+  },
+});
+
+const visibleCategories: ShopCategory[] = dbCollections.map((collection) => ({
+  slug: collection.slug,
+  name: collection.name,
+  description:
+    categoryBySlug.get(collection.slug)?.description || '',
+}));
 
   return (
     <>
@@ -55,7 +72,10 @@ export default async function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
             Shop by Category
           </h2>
-          <CategoryCarousel categories={shopCategories} images={collectionImages} />
+          <CategoryCarousel
+  categories={visibleCategories}
+  images={collectionImages}
+/>
         </div>
       </section>
 
