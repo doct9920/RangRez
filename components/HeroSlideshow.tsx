@@ -82,7 +82,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
   }
   return (
     <section
-  className="relative w-full aspect-[4/5] md:aspect-[16/6] overflow-hidden bg-white select-none"
+ className="relative w-full aspect-square md:aspect-[16/6] overflow-hidden bg-white select-none"
       aria-roledescription="carousel"
       aria-label="Featured collections"
       onTouchStart={handleTouchStart}
