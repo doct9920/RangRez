@@ -127,7 +127,7 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
       <div
         ref={trackRef}
         onScroll={recenter}
-        className="no-scrollbar flex snap-x gap-4 overflow-x-auto scroll-smooth md:gap-8"
+        className="no-scrollbar flex snap-x gap-2 overflow-x-auto scroll-smooth md:gap-6"
       >
         {items.map((category, index) => {
           const image = images[category.slug];
@@ -143,7 +143,7 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
                   ? -1
                   : undefined
               }
-              className="group w-[28%] flex-shrink-0 snap-start text-center md:w-[calc((100%-4rem)/3)]"
+              className="group w-[26%] flex-shrink-0 snap-start text-center md:w-[calc((100%-3rem)/3)]"
             >
               <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200 transition group-hover:ring-gray-400">
                 {image ? (
@@ -165,7 +165,7 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
                   </div>
                 )}
               </div>
-              <h3 className="mt-4 text-xs uppercase leading-tight tracking-wide text-[#7b1f2b] sm:text-sm">
+              <h3 className="mt-2 md:mt-4 text-xs uppercase leading-tight tracking-wide text-[#7b1f2b] sm:text-sm">
                 {category.name}
               </h3>
             </Link>
