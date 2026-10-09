@@ -143,3 +143,35 @@ export function calculateShipping(
 
   return 120;
 }
+export const SUIT_WEIGHT_GRAMS = 700;
+
+export function calculateChargeableWeight(quantity: number): {
+  actualWeightGrams: number;
+  chargeableWeightKg: number;
+} {
+  const actualWeightGrams = quantity * SUIT_WEIGHT_GRAMS;
+
+  return {
+    actualWeightGrams,
+    chargeableWeightKg: Math.ceil(actualWeightGrams / 1000),
+  };
+}
+
+export function calculateWeightBasedShipping(
+  chargeableWeightKg: number,
+  subtotal: number
+): number {
+  if (!Number.isFinite(chargeableWeightKg) || chargeableWeightKg <= 0) {
+    throw new Error("Invalid chargeable weight");
+  }
+
+  if (chargeableWeightKg <= 1) {
+    return 70;
+  }
+
+  if (chargeableWeightKg <= 2) {
+    return 130;
+  }
+
+  return 200 + (Math.ceil(chargeableWeightKg) - 3) * 70;
+}
