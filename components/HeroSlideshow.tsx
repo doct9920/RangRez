@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -16,10 +17,12 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
   const [current, setCurrent] = useState(0);
 
   const nextSlide = useCallback(() => {
+    if (validSlides.length < 2) return;
     setCurrent((prev) => (prev + 1) % validSlides.length);
   }, [validSlides.length]);
 
   const previousSlide = useCallback(() => {
+    if (validSlides.length < 2) return;
     setCurrent(
       (prev) => (prev - 1 + validSlides.length) % validSlides.length
     );
@@ -63,7 +66,11 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
 
     const distance = touchStart - touchEnd;
 
-    if (Math.abs(distance) < MIN_SWIPE_DISTANCE) return;
+    if (Math.abs(distance) < MIN_SWIPE_DISTANCE) {
+      setTouchStart(null);
+      setTouchEnd(null);
+      return;
+    }
 
     if (distance > 0) {
       nextSlide();
@@ -77,12 +84,16 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
 
   if (validSlides.length === 0) {
     return (
-      <section className="relative w-full h-[400px] md:h-[560px] bg-gradient-to-br from-gray-900 to-gray-800" />
+      <section
+        className="relative w-full aspect-[16/9] md:aspect-[16/6] bg-gradient-to-br from-gray-900 to-gray-800"
+        aria-label="Featured collections"
+      />
     );
   }
+
   return (
     <section
- className="relative w-full aspect-square md:aspect-[16/6] overflow-hidden bg-white select-none"
+      className="relative w-full aspect-[16/9] md:aspect-[16/6] overflow-hidden bg-white select-none"
       aria-roledescription="carousel"
       aria-label="Featured collections"
       onTouchStart={handleTouchStart}
@@ -108,12 +119,12 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             fetchPriority={index === 0 ? 'high' : 'auto'}
             decoding="async"
             draggable={false}
-            className="block w-full h-auto object-contain"
+            className="block w-full h-full object-contain"
           />
         </div>
       ))}
 
-      {/* Previous button */}
+      {/* Previous and Next buttons */}
       {validSlides.length > 1 && (
         <>
           <button
@@ -121,7 +132,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             onClick={previousSlide}
             aria-label="Previous slide"
             className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-20
-                       w-10 h-10 md:w-12 md:h-12
+                       w-9 h-9 md:w-12 md:h-12
                        rounded-full bg-black/30 hover:bg-black/50
                        text-white flex items-center justify-center
                        transition-all duration-200 backdrop-blur-sm"
@@ -129,13 +140,12 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             <span className="text-2xl md:text-3xl leading-none">‹</span>
           </button>
 
-          {/* Next button */}
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Next slide"
             className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20
-                       w-10 h-10 md:w-12 md:h-12
+                       w-9 h-9 md:w-12 md:h-12
                        rounded-full bg-black/30 hover:bg-black/50
                        text-white flex items-center justify-center
                        transition-all duration-200 backdrop-blur-sm"
@@ -147,7 +157,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
 
       {/* Slide indicators */}
       {validSlides.length > 1 && (
-        <div className="absolute bottom-4 md:bottom-5 left-0 right-0 z-20 flex justify-center gap-2">
+        <div className="absolute bottom-3 md:bottom-5 left-0 right-0 z-20 flex justify-center gap-2">
           {validSlides.map((_, index) => (
             <button
               key={index}
