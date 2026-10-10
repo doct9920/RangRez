@@ -3,41 +3,61 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { getTokenFromRequest, verifyToken } from '@/lib/jwt';
 import { priceCart } from '@/lib/pricing';
-import { notifyOrderPlaced } from '@/lib/notifications';
-import { queuePrintJob } from '@/lib/print-jobs';
 
 /**
- * Places an order.
+ * Places a pending order for an online payment.
  *
- * Works for guests as well as signed-in customers: guest orders used to live
- * only in the browser's sessionStorage and were lost when the tab closed, so a
- * guest could pay and leave no record. The order row is written here, on the
- * server, before any payment is attempted.
+ * The order row is written on the server before the Razorpay payment attempt,
+ * so guest orders are not lost if the browser tab closes. The order is only
+ * confirmed after the payment is verified by the server.
  *
  * Totals are priced from the database, never from the request body.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
     const { items, shippingAddress, paymentMethod, deliveryMethod } = body as {
       items?: Array<{ productId: string; quantity: number; size?: string }>;
       shippingAddress?: Record<string, string>;
-      paymentMethod?: 'razorpay' | 'cod';
+      paymentMethod?: string;
       deliveryMethod?: 'standard' | 'air';
     };
+
+    // Cash on Delivery is disabled. Accept online payments only.
+    if (paymentMethod !== 'razorpay') {
+      return NextResponse.json(
+        { error: 'Only online payment is accepted' },
+        { status: 400 }
+      );
+    }
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
-    if (deliveryMethod !== 'standard' && deliveryMethod !== 'air') {
-  return NextResponse.json(
-    { error: 'Invalid delivery method' },
-    { status: 400 }
-  );
-}
 
-    const required = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'pincode'];
-    const missing = required.filter((field) => !shippingAddress?.[field]?.trim());
+    if (deliveryMethod !== 'standard' && deliveryMethod !== 'air') {
+      return NextResponse.json(
+        { error: 'Invalid delivery method' },
+        { status: 400 }
+      );
+    }
+
+    const required = [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'address',
+      'city',
+      'state',
+      'pincode',
+    ];
+
+    const missing = required.filter(
+      (field) => !shippingAddress?.[field]?.trim()
+    );
+
     if (missing.length > 0) {
       return NextResponse.json(
         { error: `Missing address fields: ${missing.join(', ')}` },
@@ -46,27 +66,28 @@ export async function POST(request: NextRequest) {
     }
 
     const priced = await priceCart(
-  items,
-  shippingAddress!.pincode,
-  deliveryMethod
-);
+      items,
+      shippingAddress!.pincode,
+      deliveryMethod
+    );
 
-    // A signed-in customer's order is linked to their account; a guest's is
-    // matched later by the email they checked out with.
+    // Link signed-in customers to their account; guests are matched by email.
     const payload = verifyToken(getTokenFromRequest(request));
     const userId = payload?.userId ?? null;
     const userEmail = (payload?.email ?? shippingAddress!.email).toLowerCase();
 
-    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
+    const orderId = `ORD-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 11)
+      .toUpperCase()}`;
 
     const order = await prisma.order.create({
       data: {
         orderId,
         userId,
         userEmail,
-        // Confirmed only once payment is verified (or on delivery for COD).
         status: 'pending',
-       paymentMethod: paymentMethod!,
+        paymentMethod: 'razorpay',
         paymentStatus: 'pending',
         subtotal: new Prisma.Decimal(priced.subtotal),
         shipping: new Prisma.Decimal(priced.shipping),
@@ -78,7 +99,9 @@ export async function POST(request: NextRequest) {
             name: item.name,
             price: new Prisma.Decimal(item.price),
             compareAtPrice:
-              item.compareAtPrice !== undefined ? new Prisma.Decimal(item.compareAtPrice) : null,
+              item.compareAtPrice !== undefined
+                ? new Prisma.Decimal(item.compareAtPrice)
+                : null,
             size: item.size,
             quantity: item.quantity,
             image: item.image,
@@ -88,14 +111,8 @@ export async function POST(request: NextRequest) {
       select: { id: true, orderId: true, total: true },
     });
 
-// Online orders are announced once payment verifies, not here.
-if (paymentMethod === 'cod') {
-  await notifyOrderPlaced(order.id);
-  await queuePrintJob(order.id);
-}
-
     console.log(
-      `[orders/place] ${order.orderId} (${paymentMethod}) for ${userEmail}` +
+      `[orders/place] ${order.orderId} (razorpay) for ${userEmail}` +
         (userId ? '' : ' [guest]')
     );
 
@@ -105,10 +122,16 @@ if (paymentMethod === 'cod') {
       shipping: priced.shipping,
       total: priced.total,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[orders/place] Error:', error);
+
     return NextResponse.json(
-      { error: error?.message || 'Could not place the order' },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Could not place the order',
+      },
       { status: 500 }
     );
   }
