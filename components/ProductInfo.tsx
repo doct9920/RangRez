@@ -241,11 +241,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span>7-Day Exchange</span>
           </div>
         </div>
       </div>
-
       {/* Product Details */}
       <div className="border-t border-gray-200 pt-6 space-y-3 text-sm">
         <div className="flex justify-between">

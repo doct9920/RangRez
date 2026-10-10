@@ -40,7 +40,6 @@ export default function AboutPage() {
             <li>Premium quality fabrics and craftsmanship</li>
             <li>Curated collections for the modern woman</li>
             <li>Fast and reliable delivery across India</li>
-            <li>Easy returns and exchanges</li>
             <li>Personalized customer support via WhatsApp</li>
           </ul>
         </section>

@@ -1,7 +1,6 @@
 const announcements = [
   'Free Shipping on Orders above ₹2500',
   'Authentic Hand Block Prints',
-  'Easy 7-Day Returns',
 ];
 
 export default function AnnouncementBar() {
