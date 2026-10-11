@@ -112,7 +112,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
         <img
           src={validSlides[current]}
           alt=""
-          className="block w-full h-full object-cover scale-110 blur-2xl"
+          className="block w-full h-full object-cover scale-110 blur-lg"
           draggable={false}
         />
       </div>
