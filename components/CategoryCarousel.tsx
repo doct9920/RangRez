@@ -10,10 +10,8 @@ interface CategoryCarouselProps {
 }
 
 /**
- * The list is rendered three times and the scroll position is kept in the
- * middle copy. Whenever it drifts into an outer copy, it jumps back by exactly
- * one copy's width - the same tiles are under the cursor, so the seam is
- * invisible and scrolling never reaches an end in either direction.
+ * Render three copies and keep the scroll position in the middle copy.
+ * Recenter by one copy's width to preserve seamless infinite scrolling.
  */
 const COPIES = 3;
 
@@ -22,7 +20,6 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
   const recentering = useRef(false);
   const [loops, setLoops] = useState(1);
 
-  // Only loop when there is more than a screenful; a short list would jitter.
   const canLoop = loops > 1;
   const items = canLoop
     ? Array.from({ length: COPIES }, () => categories).flat()
@@ -38,6 +35,7 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
     const track = trackRef.current;
     const first = track?.firstElementChild as HTMLElement | null;
     if (!track || !first) return 0;
+
     const gap = parseFloat(getComputedStyle(track).columnGap || '0') || 0;
     return first.offsetWidth + gap;
   }, []);
@@ -45,18 +43,17 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
   useLayoutEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    // Loop only if the tiles actually overflow their container.
+
     setLoops(track.scrollWidth > track.clientWidth + 1 ? 2 : 1);
   }, [categories.length]);
 
-  // Start in the middle copy so there is room to scroll either way.
   useLayoutEffect(() => {
     const track = trackRef.current;
     if (!track || !canLoop) return;
+
     const width = track.scrollWidth / COPIES;
+
     if (width > 0) {
-      // The track scrolls smoothly, so assigning scrollLeft would animate the
-      // carousel across the screen on load. Place it instantly instead.
       recentering.current = true;
       const previous = track.style.scrollBehavior;
       track.style.scrollBehavior = 'auto';
@@ -73,10 +70,9 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
     const width = copyWidth();
     if (width <= 0) return;
 
-    // Jumping by a whole copy lands on an identical tile, so nothing appears
-    // to move. Disable smooth scrolling first or the jump would animate.
     if (track.scrollLeft < width * 0.5 || track.scrollLeft > width * 1.5) {
       const offset = track.scrollLeft < width * 0.5 ? width : -width;
+
       recentering.current = true;
       const previous = track.style.scrollBehavior;
       track.style.scrollBehavior = 'auto';
@@ -88,7 +84,10 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
 
   const scrollByCards = useCallback(
     (direction: 1 | -1) => {
-      trackRef.current?.scrollBy({ left: direction * getStep(), behavior: 'smooth' });
+      trackRef.current?.scrollBy({
+        left: direction * getStep(),
+        behavior: 'smooth',
+      });
     },
     [getStep]
   );
@@ -102,22 +101,24 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
 
   return (
     <div className="relative">
+      {/* Previous category */}
       <button
         type="button"
         onClick={() => scrollByCards(-1)}
         aria-label="Previous categories"
-        className="absolute left-0 top-[38%] md:top-[42%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-gray-600 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white"
+        className="absolute left-0 top-[38%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#244FC4] shadow-md ring-1 ring-[#BFC8D5] backdrop-blur-sm transition hover:bg-[#F7F9FC] md:top-[42%]"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
+      {/* Next category */}
       <button
         type="button"
         onClick={() => scrollByCards(1)}
         aria-label="Next categories"
-        className="absolute right-0 top-[38%] md:top-[42%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-gray-600 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white"
+        className="absolute right-0 top-[38%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#244FC4] shadow-md ring-1 ring-[#BFC8D5] backdrop-blur-sm transition hover:bg-[#F7F9FC] md:top-[42%]"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -131,24 +132,25 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
       >
         {items.map((category, index) => {
           const image = images[category.slug];
+
           return (
             <Link
               key={`${category.slug}-${index}`}
               href={`/collections/${category.slug}`}
-              // Duplicated tiles are decoration; only the middle copy is real
-              // as far as assistive technology is concerned.
-              aria-hidden={canLoop && (index < categories.length || index >= categories.length * 2)}
+              aria-hidden={
+                canLoop &&
+                (index < categories.length || index >= categories.length * 2)
+              }
               tabIndex={
-                canLoop && (index < categories.length || index >= categories.length * 2)
+                canLoop &&
+                (index < categories.length || index >= categories.length * 2)
                   ? -1
                   : undefined
               }
               className="group w-[26%] flex-shrink-0 snap-start text-center md:w-[calc((100%-3rem)/3)]"
             >
-              <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200 transition group-hover:ring-gray-400">
+              <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full bg-[#F7F9FC] ring-1 ring-[#BFC8D5] transition group-hover:ring-[#244FC4]">
                 {image ? (
-                  // Images are base64 data URLs or remote URLs, so a plain img
-                  // keeps both working without next/image host config.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={image}
@@ -160,12 +162,13 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 px-3 text-center text-xs font-medium text-gray-500">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#F7F9FC] to-[#BFC8D5]/60 px-3 text-center text-xs font-medium text-[#52627A]">
                     {category.name}
                   </div>
                 )}
               </div>
-              <h3 className="mt-2 md:mt-4 text-xs uppercase leading-tight tracking-wide text-[#7b1f2b] sm:text-sm">
+
+              <h3 className="mt-2 text-xs uppercase leading-tight tracking-wide text-[#244FC4] transition-colors group-hover:text-[#202C46] sm:text-sm md:mt-4">
                 {category.name}
               </h3>
             </Link>

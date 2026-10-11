@@ -29,8 +29,7 @@ export default function ProductCarousel({
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   // Saved items live in this browser only - there is no wishlist API yet.
-  // The page renders more than one carousel and a product can appear in both,
-  // so instances broadcast changes to keep their hearts in sync.
+  // Keep wishlist hearts synchronized across carousel instances.
   useEffect(() => {
     try {
       const stored = localStorage.getItem(WISHLIST_KEY);
@@ -57,7 +56,7 @@ export default function ProductCarousel({
       try {
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(next));
       } catch {
-        // Ignore write failures; the toggle still works for this page view.
+        // The toggle still works for this page view.
       }
 
       window.dispatchEvent(
@@ -122,7 +121,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scrollByCards(-1)}
           aria-label="Previous products"
-          className={`absolute left-0 top-[30%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-gray-600 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white ${
+          className={`absolute left-0 top-[30%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#244FC4] shadow-md ring-1 ring-[#BFC8D5] backdrop-blur-sm transition hover:bg-[#F7F9FC] ${
             atStart ? 'opacity-40' : ''
           }`}
         >
@@ -146,7 +145,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scrollByCards(1)}
           aria-label="Next products"
-          className={`absolute right-0 top-[30%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-gray-600 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white ${
+          className={`absolute right-0 top-[30%] z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#244FC4] shadow-md ring-1 ring-[#BFC8D5] backdrop-blur-sm transition hover:bg-[#F7F9FC] ${
             atEnd ? 'opacity-40' : ''
           }`}
         >
@@ -194,10 +193,9 @@ export default function ProductCarousel({
                     href={`/products/${product.id}`}
                     className="block"
                   >
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-[#F7F9FC] ring-1 ring-[#BFC8D5]/50">
                       {image ? (
-                        // Images are base64 data URLs or remote URLs, so a plain
-                        // img keeps both working without next/image host config.
+                        // Plain img supports base64 and remote image URLs.
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={image}
@@ -209,7 +207,7 @@ export default function ProductCarousel({
                           className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 text-sm text-gray-500">
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#F7F9FC] to-[#BFC8D5]/60 text-sm text-[#52627A]">
                           Product Image
                         </div>
                       )}
@@ -226,11 +224,11 @@ export default function ProductCarousel({
                         : `Save ${product.name}`
                     }
                     aria-pressed={saved}
-                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow ring-1 ring-gray-200 transition hover:bg-white"
+                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-[#BFC8D5] transition hover:bg-[#F7F9FC]"
                   >
                     <svg
                       className={`h-4 w-4 ${
-                        saved ? 'text-[#7b1f2b]' : 'text-gray-500'
+                        saved ? 'text-[#244FC4]' : 'text-[#52627A]'
                       }`}
                       fill={saved ? 'currentColor' : 'none'}
                       stroke="currentColor"
@@ -250,22 +248,22 @@ export default function ProductCarousel({
                   href={`/products/${product.id}`}
                   className="block"
                 >
-                  <h3 className="mt-3 text-sm leading-snug text-[#7b1f2b] line-clamp-2">
+                  <h3 className="mt-3 text-sm leading-snug text-[#244FC4] line-clamp-2 transition-colors hover:text-[#202C46]">
                     {product.name}
                   </h3>
 
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-base font-bold text-gray-900">
+                    <span className="text-base font-bold text-[#244FC4]">
                       {formatPrice(product.price)}
                     </span>
 
                     {discount > 0 && (
                       <>
-                        <span className="text-sm text-gray-400 line-through">
+                        <span className="text-sm text-[#52627A] line-through">
                           {formatPrice(product.compareAtPrice!)}
                         </span>
 
-                        <span className="rounded bg-green-50 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+                        <span className="rounded bg-[#E7EDF9] px-1.5 py-0.5 text-xs font-semibold text-[#244FC4]">
                           {discount}% Off
                         </span>
                       </>
@@ -282,7 +280,7 @@ export default function ProductCarousel({
       <div className="mt-2 md:mt-6 flex justify-center">
         <Link
           href={viewAllHref}
-          className="inline-flex items-center gap-2 border border-gray-300 px-8 py-3 text-sm font-medium uppercase tracking-wide text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white"
+          className="inline-flex items-center gap-2 border border-[#244FC4] px-8 py-3 text-sm font-medium uppercase tracking-wide text-[#244FC4] transition hover:bg-[#244FC4] hover:text-white"
         >
           View All
           <span aria-hidden="true">&rsaquo;</span>

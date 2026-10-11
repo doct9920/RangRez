@@ -77,7 +77,7 @@ export default async function Home() {
       {/* Featured Collections */}
       <section className="py-3 md:py-10 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Shop by Category
           </h2>
 
@@ -91,7 +91,7 @@ export default async function Home() {
       {/* Saree Collection */}
       <section className="py-3 md:py-10 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Saree Collection
           </h2>
 
@@ -105,7 +105,7 @@ export default async function Home() {
       {/* New Arrivals */}
       <section className="py-3 md:py-10 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             New Arrivals
           </h2>
 
@@ -119,7 +119,7 @@ export default async function Home() {
       {/* Suits Collection */}
       <section className="py-3 md:py-10 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Suits Collection
           </h2>
 
@@ -133,7 +133,7 @@ export default async function Home() {
       {/* Shop All */}
       <section className="py-3 md:py-10 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Shop All
           </h2>
 

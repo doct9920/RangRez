@@ -2,14 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* The design is light only - components hardcode white surfaces and dark text -
-   so the body must not follow the operating system's dark preference. */
+/* Rangrez — Cobalt Blue + Silver Theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F7F9FC;
+  --foreground: #202C46;
+
+  --brand-primary: #244FC4;
+  --brand-silver: #BFC8D5;
+  --brand-background: #F7F9FC;
+  --brand-ink: #202C46;
+  --brand-muted: #52627A;
+  --brand-white: #FFFFFF;
+
   color-scheme: light;
 }
 
+/* Base website styles */
 body {
   color: var(--foreground);
   background: var(--background);
@@ -18,9 +26,98 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Shared text and colour utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Headings */
+  .rangrez-heading {
+    color: var(--brand-primary);
+  }
+
+  /* Product prices */
+  .rangrez-price {
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+
+  /* Links */
+  .rangrez-link {
+    color: var(--brand-primary);
+    transition: color 180ms ease;
+  }
+
+  .rangrez-link:hover {
+    color: var(--brand-ink);
+  }
+
+  /* Backgrounds */
+  .rangrez-surface {
+    background-color: var(--brand-background);
+  }
+
+  .rangrez-white {
+    background-color: var(--brand-white);
+  }
+
+  /* Silver borders */
+  .rangrez-border {
+    border-color: var(--brand-silver);
+  }
+
+  /* Readable body text */
+  .rangrez-body-text {
+    color: var(--brand-ink);
+  }
+
+  .rangrez-muted {
+    color: var(--brand-muted);
+  }
+
+  /* Primary buttons */
+  .rangrez-button {
+    background-color: var(--brand-primary);
+    color: var(--brand-white);
+    border: 1px solid var(--brand-primary);
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .rangrez-button:hover {
+    background-color: var(--brand-ink);
+    border-color: var(--brand-ink);
+    color: var(--brand-white);
+  }
+
+  /* Secondary buttons */
+  .rangrez-button-outline {
+    background-color: var(--brand-white);
+    color: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .rangrez-button-outline:hover {
+    background-color: var(--brand-primary);
+    color: var(--brand-white);
+  }
+
+  /* Silver highlight */
+  .rangrez-highlight {
+    background-color: var(--brand-silver);
+    color: var(--brand-ink);
+  }
+
+  /* Keyboard focus visibility */
+  .rangrez-focus:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 3px;
   }
 }
 
@@ -31,6 +128,7 @@ body {
   margin: 0;
 }
 
+/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
@@ -41,7 +139,6 @@ img {
   height: auto;
   display: block;
 }
-
 
 /* Announcement bar marquee */
 .marquee {
@@ -63,6 +160,7 @@ img {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
@@ -72,13 +170,19 @@ img {
   animation-play-state: paused;
 }
 
+/* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
   }
+
+  html {
+    scroll-behavior: auto;
+  }
 }
 
-/* Horizontal carousels scroll by arrow/auto-advance, so hide the scrollbar */
+/* Horizontal carousels scroll by arrow/auto-advance,
+   so hide the scrollbar */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
