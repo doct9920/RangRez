@@ -1,8 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Product } from '@/lib/products';
+import ProductImageRotator from './ProductImageRotator';
 
 interface ProductCarouselProps {
   products: Product[];
@@ -28,14 +30,13 @@ export default function ProductCarousel({
   const [atEnd, setAtEnd] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
-  // Saved items live in this browser only - there is no wishlist API yet.
-  // Keep wishlist hearts synchronized across carousel instances.
+  // Keep wishlist synchronized across carousel instances.
   useEffect(() => {
     try {
       const stored = localStorage.getItem(WISHLIST_KEY);
       if (stored) setWishlist(JSON.parse(stored));
     } catch {
-      // Ignore unreadable storage (private mode, cleared site data).
+      // Ignore unreadable storage.
     }
 
     const onChange = (event: Event) => {
@@ -44,7 +45,8 @@ export default function ProductCarousel({
 
     window.addEventListener(WISHLIST_EVENT, onChange);
 
-    return () => window.removeEventListener(WISHLIST_EVENT, onChange);
+    return () =>
+      window.removeEventListener(WISHLIST_EVENT, onChange);
   }, []);
 
   const toggleWishlist = (productId: string) => {
@@ -56,7 +58,7 @@ export default function ProductCarousel({
       try {
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(next));
       } catch {
-        // The toggle still works for this page view.
+        // Wishlist still works for this page view.
       }
 
       window.dispatchEvent(
@@ -72,7 +74,8 @@ export default function ProductCarousel({
 
     if (!track) return 0;
 
-    const first = track.firstElementChild as HTMLElement | null;
+    const first =
+      track.firstElementChild as HTMLElement | null;
 
     if (!first) return 0;
 
@@ -87,7 +90,8 @@ export default function ProductCarousel({
 
     if (!track) return;
 
-    const maxScroll = track.scrollWidth - track.clientWidth;
+    const maxScroll =
+      track.scrollWidth - track.clientWidth;
 
     setAtStart(track.scrollLeft <= 1);
     setAtEnd(track.scrollLeft >= maxScroll - 1);
@@ -108,7 +112,8 @@ export default function ProductCarousel({
 
     window.addEventListener('resize', updateArrows);
 
-    return () => window.removeEventListener('resize', updateArrows);
+    return () =>
+      window.removeEventListener('resize', updateArrows);
   }, [updateArrows]);
 
   if (products.length === 0) return null;
@@ -171,13 +176,16 @@ export default function ProductCarousel({
           className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:gap-6"
         >
           {products.map((product) => {
-            const image = product.images?.[0];
+            const images = product.images ?? [];
 
             const discount =
               product.compareAtPrice &&
               product.compareAtPrice > product.price
                 ? Math.round(
-                    (1 - product.price / product.compareAtPrice) * 100
+                    (1 -
+                      product.price /
+                        product.compareAtPrice) *
+                      100
                   )
                 : 0;
 
@@ -189,48 +197,44 @@ export default function ProductCarousel({
                 className="w-[46%] flex-shrink-0 snap-start md:w-[calc((100%-4.5rem)/4)]"
               >
                 <div className="group relative">
-                  <Link
-                    href={`/products/${product.id}`}
-                    className="block"
-                  >
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-[#F7F9FC] ring-1 ring-[#BFC8D5]/50">
-                      {image ? (
-                        // Plain img supports base64 and remote image URLs.
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={image}
-                          alt={product.name}
-                          width={400}
-                          height={533}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#F7F9FC] to-[#BFC8D5]/60 text-sm text-[#52627A]">
-                          Product Image
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+                  {/* Product image and thumbnails */}
+                  <div className="relative">
+                    <ProductImageRotator
+                      images={images}
+                      name={product.name}
+                    />
+
+                    {/* Click main photo to open product */}
+                    <Link
+                      href={`/products/${product.id}`}
+                      aria-label={`View ${product.name}`}
+                      className="absolute inset-x-0 top-0 z-10 aspect-[3/4]"
+                    />
+                  </div>
 
                   {/* Wishlist */}
                   <button
                     type="button"
-                    onClick={() => toggleWishlist(product.id)}
+                    onClick={() =>
+                      toggleWishlist(product.id)
+                    }
                     aria-label={
                       saved
                         ? `Remove ${product.name} from saved items`
                         : `Save ${product.name}`
                     }
                     aria-pressed={saved}
-                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-[#BFC8D5] transition hover:bg-[#F7F9FC]"
+                    className="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-[#BFC8D5] transition hover:bg-[#F7F9FC]"
                   >
                     <svg
                       className={`h-4 w-4 ${
-                        saved ? 'text-[#244FC4]' : 'text-[#52627A]'
+                        saved
+                          ? 'text-[#244FC4]'
+                          : 'text-[#52627A]'
                       }`}
-                      fill={saved ? 'currentColor' : 'none'}
+                      fill={
+                        saved ? 'currentColor' : 'none'
+                      }
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -244,11 +248,12 @@ export default function ProductCarousel({
                   </button>
                 </div>
 
+                {/* Product name and price */}
                 <Link
                   href={`/products/${product.id}`}
                   className="block"
                 >
-                  <h3 className="mt-3 text-sm leading-snug text-[#244FC4] line-clamp-2 transition-colors hover:text-[#202C46]">
+                  <h3 className="mt-3 line-clamp-2 text-sm leading-snug text-[#244FC4] transition-colors hover:text-[#202C46]">
                     {product.name}
                   </h3>
 
@@ -260,7 +265,9 @@ export default function ProductCarousel({
                     {discount > 0 && (
                       <>
                         <span className="text-sm text-[#52627A] line-through">
-                          {formatPrice(product.compareAtPrice!)}
+                          {formatPrice(
+                            product.compareAtPrice!
+                          )}
                         </span>
 
                         <span className="rounded bg-[#E7EDF9] px-1.5 py-0.5 text-xs font-semibold text-[#244FC4]">
@@ -277,7 +284,7 @@ export default function ProductCarousel({
       </div>
 
       {/* View All */}
-      <div className="mt-2 md:mt-6 flex justify-center">
+      <div className="mt-2 flex justify-center md:mt-6">
         <Link
           href={viewAllHref}
           className="inline-flex items-center gap-2 border border-[#244FC4] px-8 py-3 text-sm font-medium uppercase tracking-wide text-[#244FC4] transition hover:bg-[#244FC4] hover:text-white"
