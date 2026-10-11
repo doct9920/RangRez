@@ -82,10 +82,13 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
     setTouchEnd(null);
   };
 
+  // Responsive hero: mobile 460px, desktop 520px
+  const heroHeight = 'relative isolate w-full h-[460px] md:h-[520px]';
+
   if (validSlides.length === 0) {
     return (
       <section
-        className="relative w-full aspect-[16/9] md:aspect-[16/6] bg-gradient-to-br from-gray-900 to-gray-800"
+        className={`${heroHeight} overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800`}
         aria-label="Featured collections"
       />
     );
@@ -93,19 +96,39 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
 
   return (
     <section
-      className="relative w-full aspect-[16/9] md:aspect-[16/6] overflow-hidden bg-white select-none"
+      className={`${heroHeight} overflow-hidden bg-neutral-100 select-none`}
       aria-roledescription="carousel"
       aria-label="Featured collections"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slides */}
+      {/* Blurred background follows the active banner photo */}
+      <div
+        className="absolute inset-0 z-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={validSlides[current]}
+          alt=""
+          className="block w-full h-full object-cover scale-110 blur-2xl"
+          draggable={false}
+        />
+      </div>
+
+      {/* Soft overlay for a subtle luxury look */}
+      <div
+        className="absolute inset-0 z-[1] bg-white/25"
+        aria-hidden="true"
+      />
+
+      {/* Original banner image stays uncropped in the foreground */}
       {validSlides.map((slide, index) => (
         <div
           key={`${slide}-${index}`}
           aria-hidden={index !== current}
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+          className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
             index === current ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -133,7 +156,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             aria-label="Previous slide"
             className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-20
                        w-9 h-9 md:w-12 md:h-12
-                       rounded-full bg-black/30 hover:bg-black/50
+                       rounded-full bg-black/40 hover:bg-black/60
                        text-white flex items-center justify-center
                        transition-all duration-200 backdrop-blur-sm"
           >
@@ -146,7 +169,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             aria-label="Next slide"
             className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20
                        w-9 h-9 md:w-12 md:h-12
-                       rounded-full bg-black/30 hover:bg-black/50
+                       rounded-full bg-black/40 hover:bg-black/60
                        text-white flex items-center justify-center
                        transition-all duration-200 backdrop-blur-sm"
           >
@@ -168,7 +191,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === current
                   ? 'w-7 bg-white'
-                  : 'w-2 bg-white/60 hover:bg-white/90'
+                  : 'w-2 bg-white/70 hover:bg-white'
               }`}
             />
           ))}
