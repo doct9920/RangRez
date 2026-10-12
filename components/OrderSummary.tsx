@@ -20,8 +20,8 @@ export default function OrderSummary({ items, subtotal, shipping, total }: Order
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+    <div className="rangrez-luxury-order-summary sticky top-20 rounded-lg border border-[#80663D] bg-[#1B1B1B] p-6 text-[#F4E9D5]">
+      <h2 className="mb-4 text-xl font-bold text-[#D9B978]">Order Summary</h2>
 
       {/* Order Items */}
       <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
@@ -35,27 +35,29 @@ export default function OrderSummary({ items, subtotal, shipping, total }: Order
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">{item.name}</p>
-              <p className="text-gray-600 text-xs">
-                Color: {item.size} × {item.quantity}
+              <p className="truncate font-medium text-[#F4E9D5]">{item.name}</p>
+              <p className="text-xs text-[#C5B8A3]">
+                Color: {item.size} x {item.quantity}
               </p>
             </div>
-            <p className="font-semibold text-gray-900">{formatPrice(item.price * item.quantity)}</p>
+            <p className="font-semibold text-[#F4E9D5]">{formatPrice(item.price * item.quantity)}</p>
           </div>
         ))}
       </div>
 
       {/* Price Breakdown */}
-      <div className="space-y-3 mb-6 border-t border-gray-200 pt-4">
-        <div className="flex justify-between text-gray-700">
+      <div className="mb-6 space-y-3 border-t border-[#80663D] pt-4">
+        <div className="flex justify-between text-[#F4E9D5]">
           <span className="font-medium">Subtotal</span>
           <span className="font-medium">{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-gray-700">
+        <div className="flex justify-between text-[#F4E9D5]">
           <span className="font-medium">Shipping</span>
           <span>
             {shipping === 0 ? (
-              <span className="text-green-600 font-semibold">Free</span>
+              <span className="text-sm font-medium text-[#D9B978]">
+                Calculated at checkout
+              </span>
             ) : (
               <span className="font-medium">{formatPrice(shipping)}</span>
             )}
@@ -64,33 +66,28 @@ export default function OrderSummary({ items, subtotal, shipping, total }: Order
       </div>
 
       {/* Total */}
-      <div className="border-t border-gray-200 pt-4 mb-6">
+      <div className="mb-6 border-t border-[#80663D] pt-4">
         <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold text-gray-900">Total</span>
-          <span className="text-2xl font-bold text-gray-900">{formatPrice(total)}</span>
+          <span className="text-lg font-semibold text-[#F4E9D5]">Total</span>
+          <span className="text-2xl font-bold text-[#D9B978]">{formatPrice(total)}</span>
         </div>
       </div>
 
       {/* Trust Badges */}
-      <div className="space-y-2 pt-4 border-t border-gray-200">
-        <div className="flex items-center gap-2 text-xs text-gray-700">
+      <div className="space-y-2 border-t border-[#80663D] pt-4">
+        <div className="flex items-center gap-2 text-xs text-[#C5B8A3]">
           <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span>Secure checkout</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-700">
-          <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <span>Easy returns</span>
-        </div>
+
       </div>
 
       {/* Back to Cart */}
       <Link
         href="/cart"
-        className="block mt-4 text-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+        className="mt-4 block text-center text-sm text-[#D9B978] transition-colors hover:text-[#F0D49A]"
       >
         ← Back to Cart
       </Link>

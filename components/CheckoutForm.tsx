@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { initiateRazorpayPayment, createRazorpayOrder, verifyRazorpayPayment } from '@/lib/razorpay';
 import { useAuth } from '@/contexts/AuthContext';
@@ -258,7 +258,7 @@ export default function CheckoutForm({
     }
   };
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6 md:p-8 space-y-6">
+    <form onSubmit={handleSubmit} className="rangrez-luxury-checkout-form bg-[#1B1B1B] border border-[#80663D] rounded-lg p-6 md:p-8 space-y-6 text-[#F4E9D5]">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Shipping Information</h2>
       {/* Name Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

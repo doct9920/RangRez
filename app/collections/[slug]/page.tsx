@@ -109,7 +109,7 @@ export default async function CollectionPage({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
+    <div className="rangrez-luxury-collection container mx-auto px-4 py-8 md:py-12">
       {/* Collection Header */}
       <div className="mb-8 md:mb-12">
         <h1 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
@@ -130,7 +130,7 @@ export default async function CollectionPage({
             return (
               <div
                 key={product.id}
-                className="group min-w-0"
+                className="group min-w-0 rangrez-product-float"
               >
                 {/* Product image and thumbnail gallery */}
                 <div className="relative mb-3">

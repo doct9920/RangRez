@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
@@ -42,6 +43,8 @@ function Wordmark() {
 }
 
 export default function Header() {
+  const pathname = usePathname();
+  const isLuxuryHome = !pathname.startsWith('/admin');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -86,7 +89,7 @@ export default function Header() {
     <>
       <AnnouncementBar />
 
-      <header className="sticky top-0 z-50 border-b border-[#BFC8D5] bg-white shadow-sm">
+      <header className={`sticky top-0 z-50 border-b shadow-sm ${isLuxuryHome ? "rangrez-luxury-header" : "border-[#BFC8D5] bg-white"}`}>
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center md:h-20">
             {/* Left: mobile menu and desktop logo */}
@@ -133,7 +136,7 @@ export default function Header() {
                 href="/"
                 className="hidden items-center gap-2 text-3xl font-bold tracking-tight transition-opacity hover:opacity-80 md:flex"
               >
-                <Wordmark />
+                {isLuxuryHome ? <span className="rangrez-gold-wordmark">RANGREZ</span> : <Wordmark />}
               </Link>
             </div>
 
@@ -142,7 +145,7 @@ export default function Header() {
               href="/"
               className="text-2xl font-bold tracking-tight transition-opacity hover:opacity-80 md:hidden"
             >
-              <Wordmark />
+              {isLuxuryHome ? <span className="rangrez-gold-wordmark">RANGREZ</span> : <Wordmark />}
             </Link>
 
             {/* Desktop navigation */}
@@ -357,7 +360,7 @@ export default function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden border-t border-[#BFC8D5] bg-white md:hidden"
+              className={`overflow-hidden border-t md:hidden ${isLuxuryHome ? "border-[#80663d] bg-[#101010]" : "border-[#BFC8D5] bg-white"}`}
             >
               <div className="container mx-auto px-4 py-3">
                 <SearchBar
@@ -378,7 +381,7 @@ export default function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden border-t border-[#BFC8D5] bg-white md:hidden"
+              className={`overflow-hidden border-t md:hidden ${isLuxuryHome ? "border-[#80663d] bg-[#101010]" : "border-[#BFC8D5] bg-white"}`}
             >
               <div className="container mx-auto space-y-3 px-4 py-4">
                 {/* Mobile account links */}

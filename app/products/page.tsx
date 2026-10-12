@@ -51,7 +51,7 @@ export default async function AllProductsPage() {
               <Link
                 key={product.id}
                 href={`/products/${product.id}`}
-                className="group"
+                className="group rangrez-product-float"
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100 mb-2 group-hover:shadow-lg transition-shadow">
                   {hasValidImage ? (

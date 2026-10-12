@@ -16,12 +16,12 @@ export default function QuantityControls({
   max = 10,
 }: QuantityControlsProps) {
   return (
-    <div className="flex items-center border border-gray-300 rounded-lg">
+    <div className="flex items-center rounded-lg border border-[#80663D] bg-[#242424]">
       <button
         onClick={onDecrement}
         disabled={quantity <= min}
         className={`
-          px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors
+          px-3 py-2 text-[#D9B978] hover:text-[#F0D49A] transition-colors
           ${quantity <= min ? 'opacity-50 cursor-not-allowed' : ''}
         `}
         aria-label="Decrease quantity"
@@ -31,7 +31,7 @@ export default function QuantityControls({
         </svg>
       </button>
 
-      <span className="px-4 py-2 font-semibold min-w-[3rem] text-center text-gray-900">
+      <span className="min-w-[3rem] px-4 py-2 text-center font-semibold text-[#F4E9D5]">
         {quantity}
       </span>
 
@@ -39,7 +39,7 @@ export default function QuantityControls({
         onClick={onIncrement}
         disabled={quantity >= max}
         className={`
-          px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors
+          px-3 py-2 text-[#D9B978] hover:text-[#F0D49A] transition-colors
           ${quantity >= max ? 'opacity-50 cursor-not-allowed' : ''}
         `}
         aria-label="Increase quantity"

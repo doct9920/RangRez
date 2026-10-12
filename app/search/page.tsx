@@ -112,7 +112,7 @@ function SearchResultsContent() {
   const hasActiveFilters = filters.collection || filters.minPrice || filters.maxPrice || filters.inStock;
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
+    <div className="rangrez-luxury-search container mx-auto px-4 py-6 md:py-8">
       {/* Search Bar */}
       <div className="mb-6">
         <SearchBar />
@@ -227,7 +227,7 @@ function SearchResultsContent() {
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group"
+                  className="group rangrez-product-float"
                   aria-label={`View ${product.name} - ${formatPrice(product.price)}`}
                 >
                   <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 mb-3">

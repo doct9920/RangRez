@@ -3,7 +3,6 @@
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import ProgressBar from '@/components/ProgressBar';
-import FreeShippingProgress from '@/components/FreeShippingProgress';
 import CartItem from '@/components/CartItem';
 import CartUpsells from '@/components/CartUpsells';
 import TrustBadges from '@/components/TrustBadges';
@@ -21,12 +20,11 @@ export default function CartPage() {
   };
 
   const subtotal = getTotal();
-  const shipping = subtotal >= 2000 ? 0 : 99;
-  const total = subtotal + shipping;
+
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="rangrez-luxury-cart container mx-auto min-h-screen bg-[#101010] px-4 py-12 text-[#F4E9D5] md:py-16">
         <ProgressBar currentStep="cart" />
         
         <div className="max-w-2xl mx-auto text-center py-16">
@@ -59,7 +57,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
+    <div className="rangrez-luxury-cart container mx-auto min-h-screen bg-[#101010] px-4 py-6 text-[#F4E9D5] md:py-8">
       <ProgressBar currentStep="cart" />
 
       <div className="max-w-6xl mx-auto">
@@ -73,11 +71,10 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Free Shipping Progress */}
-            <FreeShippingProgress currentTotal={subtotal} />
+
 
             {/* Cart Items List */}
-            <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+            <div className="divide-y divide-[#4B4032] rounded-lg border border-[#80663D] bg-[#1B1B1B]">
               {items.map((item) => (
                 <CartItem key={item.id} item={item} />
               ))}
@@ -100,35 +97,26 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20">
-              <h2 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h2>
+            <div className="sticky top-20 rounded-lg border border-[#80663D] bg-[#1B1B1B] p-6">
+              <h2 className="mb-4 text-xl font-bold text-[#D9B978]">Order Summary</h2>
 
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-[#F4E9D5]">
                   <span className="font-medium">Subtotal</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-[#F4E9D5]">
                   <span className="font-medium">Shipping</span>
-                  <span>
-                    {shipping === 0 ? (
-                      <span className="text-green-600 font-semibold">Free</span>
-                    ) : (
-                      <span className="font-medium">{formatPrice(shipping)}</span>
-                    )}
+                  <span className="text-sm font-medium text-[#D9B978]">
+                    Calculated at checkout
                   </span>
                 </div>
-                {subtotal < 2000 && (
-                  <div className="text-sm text-orange-600 font-medium">
-                    Add {formatPrice(2000 - subtotal)} more for free shipping!
-                  </div>
-                )}
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mb-6">
+              <div className="mb-6 border-t border-[#80663D] pt-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-gray-900">{formatPrice(total)}</span>
+                  <span className="text-lg font-semibold text-[#F4E9D5]">Subtotal</span>
+                  <span className="text-2xl font-bold text-[#D9B978]">{formatPrice(subtotal)}</span>
                 </div>
               </div>
 
@@ -138,7 +126,7 @@ export default function CartPage() {
               {/* Checkout Button */}
               <Link
                 href="/checkout"
-                className="block w-full py-4 px-6 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors text-center mb-4"
+                className="mb-4 block w-full rounded-lg border border-[#D9B978] bg-[#D9B978] px-6 py-4 text-center font-semibold text-[#101010] transition-colors hover:bg-[#F0D49A]"
               >
                 Proceed to Checkout
               </Link>
@@ -146,7 +134,7 @@ export default function CartPage() {
               {/* WhatsApp Checkout Option */}
               <a
                 href={whatsappHref(
-                  `Hi! I'd like to place an order:\n\n${items.map(item => `${item.name} (Color: ${item.size}) x${item.quantity} - ${formatPrice(item.price * item.quantity)}`).join('\n')}\n\nTotal: ${formatPrice(total)}`
+                  `Hi! I'd like to place an order:\n\n${items.map(item => `${item.name} (Color: ${item.size}) x${item.quantity} - ${formatPrice(item.price * item.quantity)}`).join('\n')}\n\nSubtotal: ${formatPrice(subtotal)} (shipping calculated at checkout)`
                 )}
                 target="_blank"
                 rel="noopener noreferrer"

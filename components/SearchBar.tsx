@@ -123,7 +123,7 @@ export default function SearchBar({ onClose, mobile = false }: SearchBarProps) {
   };
 
   return (
-    <div ref={containerRef} className={`relative ${mobile ? 'w-full' : 'w-full max-w-md'}`}>
+    <div ref={containerRef} className={`rangrez-searchbar relative ${mobile ? 'w-full' : 'w-full max-w-md'}`}>
       {/* Search Input */}
       <div className="relative">
         <input

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import CustomerTheme from "@/components/CustomerTheme";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { CartProvider } from "@/contexts/CartContext";
@@ -120,7 +121,7 @@ export default function RootLayout({
             <CartProvider>
               <Header />
               <main className="min-h-screen" id="main-content">
-                {children}
+                <CustomerTheme>{children}</CustomerTheme>
               </main>
               <Footer />
               <WhatsAppButton />

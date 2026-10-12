@@ -70,12 +70,12 @@ export default async function Home() {
   }));
 
   return (
-    <>
+    <main className="rangrez-luxury-home">
       {/* Hero Slideshow */}
       <HeroSlideshow slides={heroSlides} />
 
       {/* Featured Collections */}
-      <section className="py-3 md:py-10 bg-white">
+      <section className="rangrez-luxury-section py-2 md:py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Shop by Category
@@ -89,7 +89,7 @@ export default async function Home() {
       </section>
 
       {/* Saree Collection */}
-      <section className="py-3 md:py-10 bg-white">
+      <section className="rangrez-luxury-section py-2 md:py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Saree Collection
@@ -103,7 +103,7 @@ export default async function Home() {
       </section>
 
       {/* New Arrivals */}
-      <section className="py-3 md:py-10 bg-white">
+      <section className="rangrez-luxury-section py-2 md:py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             New Arrivals
@@ -117,7 +117,7 @@ export default async function Home() {
       </section>
 
       {/* Suits Collection */}
-      <section className="py-3 md:py-10 bg-white">
+      <section className="rangrez-luxury-section py-2 md:py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Suits Collection
@@ -131,7 +131,7 @@ export default async function Home() {
       </section>
 
       {/* Shop All */}
-      <section className="py-3 md:py-10 bg-white">
+      <section className="rangrez-luxury-section py-2 md:py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center rangrez-heading mb-6 md:mb-8">
             Shop All
@@ -149,7 +149,7 @@ export default async function Home() {
       <Testimonials />
 
       {/* CTA Section */}
-      <section className="py-10 md:py-14 bg-gray-900 text-white">
+      <section className="rangrez-luxury-cta py-10 md:py-14">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Elevate Your Style?
@@ -161,12 +161,12 @@ export default async function Home() {
 
           <Link
             href="/collections/new-arrivals"
-            className="inline-block px-8 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+            className="rangrez-luxury-shop-button inline-block px-8 py-3 font-semibold transition-colors"
           >
             Shop Now
           </Link>
         </div>
       </section>
-    </>
+    </main>
   );
 }

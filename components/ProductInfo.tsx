@@ -110,7 +110,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const hasLowStock = lowStockColors.length > 0;
 
   return (
-    <div className="space-y-6 text-[#202C46]">
+    <div className="rangrez-luxury-product-info space-y-6 text-[#202C46]">
       {/* Collection Badge */}
       <div className="text-sm uppercase tracking-wide text-[#52627A]">
         {product.collection}
@@ -204,7 +204,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           className={`w-full rounded-lg px-6 py-4 text-lg font-semibold transition-all ${
             !selectedColor || !product.inStock
               ? 'cursor-not-allowed bg-[#BFC8D5]/60 text-[#52627A]'
-              : 'border border-[#244FC4] bg-[#244FC4] text-white hover:border-[#202C46] hover:bg-[#202C46] active:scale-95'
+              : 'border border-[#D9B978] bg-[#D9B978] text-[#101010] hover:border-[#F0D49A] hover:bg-[#F0D49A] active:scale-95'
           }`}
         >
           {!selectedColor
@@ -222,34 +222,11 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           className={`w-full rounded-lg border-2 px-6 py-4 text-lg font-semibold transition-all ${
             !selectedColor || !product.inStock
               ? 'cursor-not-allowed border-[#BFC8D5] text-[#52627A]'
-              : 'border-[#244FC4] text-[#244FC4] hover:bg-[#244FC4] hover:text-white active:scale-95'
+              : 'border-[#D9B978] text-[#D9B978] hover:bg-[#D9B978] hover:text-[#101010] active:scale-95'
           }`}
         >
           Buy Now
         </button>
-
-        {/* Risk Reversal */}
-        <div className="flex items-center justify-center gap-6 text-sm text-[#52627A]">
-          <div className="flex items-center gap-2">
-            <svg className="h-5 w-5 text-[#244FC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Free Shipping</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <svg className="h-5 w-5 text-[#244FC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Easy Returns</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <svg className="h-5 w-5 text-[#244FC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        </div>
       </div>
 
       {/* Product Details */}

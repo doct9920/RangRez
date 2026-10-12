@@ -100,7 +100,7 @@ export default function CategoryCarousel({ categories, images }: CategoryCarouse
   if (categories.length === 0) return null;
 
   return (
-    <div className="relative">
+    <div className="rangrez-category-carousel relative">
       {/* Previous category */}
       <button
         type="button"

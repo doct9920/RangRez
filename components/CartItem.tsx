@@ -32,12 +32,12 @@ export default function CartItem({ item }: CartItemProps) {
   const itemTotal = item.price * item.quantity;
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="rangrez-luxury-cart-item p-4 text-[#F4E9D5] md:p-6">
       <div className="flex gap-4">
         {/* Product Image */}
         <Link
           href={`/products/${item.productId}`}
-          className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-lg bg-gray-100 overflow-hidden hover:opacity-80 transition-opacity"
+          className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-lg border border-[#80663D] bg-[#242424] transition-opacity hover:opacity-80"
           aria-label={`View ${item.name}`}
         >
           {item.image ? (
@@ -77,17 +77,17 @@ export default function CartItem({ item }: CartItemProps) {
             <div className="flex-1">
               <Link
                 href={`/products/${item.productId}`}
-                className="block font-semibold text-base md:text-lg mb-1 text-gray-900 hover:text-gray-600 transition-colors"
+                className="mb-1 block text-base font-semibold text-[#D9B978] transition-colors hover:text-[#F0D49A] md:text-lg"
               >
                 {item.name}
               </Link>
-              <p className="text-sm text-gray-600 mb-2">
-                Color: <span className="font-medium text-gray-900">{item.size}</span>
+              <p className="mb-2 text-sm text-[#C5B8A3]">
+                Color: <span className="font-medium text-[#F4E9D5]">{item.size}</span>
               </p>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-lg text-gray-900">{formatPrice(item.price)}</span>
+                <span className="text-lg font-bold text-[#D9B978]">{formatPrice(item.price)}</span>
                 {item.compareAtPrice && (
-                  <span className="text-sm text-gray-500 line-through">
+                  <span className="text-sm text-[#9B8C77] line-through">
                     {formatPrice(item.compareAtPrice)}
                   </span>
                 )}
@@ -97,7 +97,7 @@ export default function CartItem({ item }: CartItemProps) {
             {/* Remove Button */}
             <button
               onClick={() => removeItem(item.id)}
-              className="text-gray-400 hover:text-red-600 transition-colors p-1"
+              className="rounded-md p-1 text-[#C5B8A3] transition-colors hover:bg-[#332B20] hover:text-red-400"
               aria-label="Remove item"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,8 +119,8 @@ export default function CartItem({ item }: CartItemProps) {
               onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
             />
             <div className="text-right">
-              <div className="text-sm text-gray-700 font-medium">Item Total</div>
-              <div className="font-bold text-lg text-gray-900">{formatPrice(itemTotal)}</div>
+              <div className="text-sm font-medium text-[#C5B8A3]">Item Total</div>
+              <div className="text-lg font-bold text-[#D9B978]">{formatPrice(itemTotal)}</div>
             </div>
           </div>
         </div>

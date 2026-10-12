@@ -86,7 +86,7 @@ export default function StickyAddToCart({ product }: StickyAddToCartProps) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg md:hidden"
+          className="rangrez-luxury-sticky-cart fixed bottom-0 left-0 right-0 z-40 bg-[#101010] border-t border-[#80663d] shadow-lg md:hidden"
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center gap-3">

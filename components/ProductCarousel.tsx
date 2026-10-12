@@ -120,7 +120,7 @@ export default function ProductCarousel({
 
   return (
     <div>
-      <div className="relative">
+      <div className="rangrez-product-carousel relative">
         {/* Previous button */}
         <button
           type="button"
@@ -173,7 +173,7 @@ export default function ProductCarousel({
         <div
           ref={trackRef}
           onScroll={updateArrows}
-          className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:gap-6"
+          className="no-scrollbar flex items-start snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth md:gap-6"
         >
           {products.map((product) => {
             const images = product.images ?? [];
@@ -194,11 +194,11 @@ export default function ProductCarousel({
             return (
               <div
                 key={product.id}
-                className="w-[46%] flex-shrink-0 snap-start md:w-[calc((100%-4.5rem)/4)]"
+                className="rangrez-product-float luxury-product-card w-[46%] flex-shrink-0 snap-start md:w-[calc((100%-4.5rem)/4)]"
               >
                 <div className="group relative">
                   {/* Product image and thumbnails */}
-                  <div className="relative">
+                  <div className="rangrez-product-carousel relative">
                     <ProductImageRotator
                       images={images}
                       name={product.name}
@@ -258,7 +258,7 @@ export default function ProductCarousel({
                   </h3>
 
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-base font-bold text-[#244FC4]">
+                    <span className="luxury-price text-base font-bold text-[#244FC4]">
                       {formatPrice(product.price)}
                     </span>
 
@@ -270,7 +270,7 @@ export default function ProductCarousel({
                           )}
                         </span>
 
-                        <span className="rounded bg-[#E7EDF9] px-1.5 py-0.5 text-xs font-semibold text-[#244FC4]">
+                        <span className="luxury-discount-badge rounded bg-[#E7EDF9] px-1.5 py-0.5 text-xs font-semibold text-[#244FC4]">
                           {discount}% Off
                         </span>
                       </>
@@ -287,7 +287,7 @@ export default function ProductCarousel({
       <div className="mt-2 flex justify-center md:mt-6">
         <Link
           href={viewAllHref}
-          className="inline-flex items-center gap-2 border border-[#244FC4] px-8 py-3 text-sm font-medium uppercase tracking-wide text-[#244FC4] transition hover:bg-[#244FC4] hover:text-white"
+          className="luxury-view-all inline-flex items-center gap-2 border border-[#244FC4] px-8 py-3 text-sm font-medium uppercase tracking-wide text-[#244FC4] transition hover:bg-[#244FC4] hover:text-white"
         >
           View All
           <span aria-hidden="true">&rsaquo;</span>
