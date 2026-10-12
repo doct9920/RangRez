@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -280,8 +280,6 @@ img {
     border-radius: 8px;
   }
 }
- app/globals.css | 95 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 92 insertions(+), 3 deletions(-)
 
 /* Rangrez Dark Royal Luxury - Homepage Header */
 .rangrez-luxury-header {
