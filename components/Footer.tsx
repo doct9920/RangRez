@@ -161,7 +161,7 @@ export default function Footer() {
 
             <div className="flex items-center space-x-5">
               <a
-                href="https://instagram.com/rangrez"
+                href="https://www.instagram.com/rangrez.bypoonam/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -178,7 +178,7 @@ export default function Footer() {
               </a>
 
               <a
-                href="https://facebook.com/rangrez"
+                href="https://www.facebook.com/share/19gYvFf1MW/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
