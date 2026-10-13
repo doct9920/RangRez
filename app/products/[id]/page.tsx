@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import ImageGallery from '@/components/ImageGallery';
 import ProductInfo from '@/components/ProductInfo';
+import ProductShare from '@/components/ProductShare';
 import StickyAddToCart from '@/components/StickyAddToCart';
 import ProductViewTracker from '@/components/ProductViewTracker';
 import ProductReviews from '@/components/ProductReviews';
@@ -85,6 +86,10 @@ export default async function ProductPage({
           {/* Product Information and Add to Cart */}
           <div>
             <ProductInfo product={product} />
+            <ProductShare
+              productId={product.id}
+              productName={product.name}
+            />
           </div>
         </div>
       </div>
