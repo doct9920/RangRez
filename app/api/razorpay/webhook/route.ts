@@ -30,29 +30,36 @@ export async function POST(request: NextRequest) {
 
     if (razorpayOrderId && razorpayPaymentId) {
       if (event.event === 'payment.captured') {
-        const paid = await prisma.order
-          .update({
-            where: { razorpayOrderId },
-            data: { paymentStatus: 'paid', status: 'confirmed', razorpayPaymentId },
-          })
-          .catch(() => {
-            console.warn('[razorpay/webhook] No order matched', razorpayOrderId);
-            return null;
-          });
+        const result = await prisma.order.updateMany({
+          where: {
+            razorpayOrderId,
+            paymentStatus: { not: 'paid' },
+          },
+          data: {
+            paymentStatus: 'paid',
+            status: 'confirmed',
+            razorpayPaymentId,
+          },
+        });
 
-        if (paid) {
-  await notifyOrderPlaced(paid.id);
-  await queuePrintJob(paid.id);
-}
+        const paid = result.count > 0
+          ? await prisma.order.findUnique({ where: { razorpayOrderId } })
+          : null;
+
+        const order = paid ?? await prisma.order.findUnique({
+          where: { razorpayOrderId },
+        });
+
+        if (order?.paymentStatus === 'paid') {
+          await notifyOrderPlaced(order.id);
+          await queuePrintJob(order.id);
+        }
       } else if (event.event === 'payment.failed') {
         // Record the failure so the order is not left pending forever.
         await prisma.order
-          .update({
-            where: { razorpayOrderId },
+          .updateMany({
+            where: { razorpayOrderId, paymentStatus: { not: 'paid' } },
             data: { paymentStatus: 'failed', razorpayPaymentId },
-          })
-          .catch(() => {
-            console.warn('[razorpay/webhook] No order matched', razorpayOrderId);
           });
       }
     }
@@ -61,6 +68,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error: any) {
     console.error('[razorpay/webhook] Error:', error);
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }

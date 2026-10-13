@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -6,7 +6,7 @@ import AdminGuard from '@/components/AdminGuard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
 import ImageCropper from '@/components/ImageCropper';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/product-types';
 import { shopCategories } from '@/lib/categories';
 import { uploadImageToCdn } from '@/lib/upload-client';
 

@@ -166,24 +166,36 @@ export async function sendOrderEmails(order: OrderEmailData): Promise<boolean> {
   const customer = order.shippingAddress.email;
 
   try {
-    await Promise.all([
+    const [customerResult, shopResult] = await Promise.all([
       customer
-        ? resend.emails.send({
-            from: FROM,
-            to: customer,
-            replyTo: contact.email,
-            subject: `Your Rangrez order ${order.orderId}`,
-            html: customerEmail(order),
-          })
-        : Promise.resolve(),
-      resend.emails.send({
-        from: FROM,
-        to: contact.email,
-        replyTo: customer || contact.email,
-        subject: `New order ${order.orderId} - ${rupees(order.total)}`,
-        html: shopEmail(order),
-      }),
+        ? resend.emails.send(
+            {
+              from: FROM,
+              to: customer,
+              replyTo: contact.email,
+              subject: `Your Rangrez order ${order.orderId}`,
+              html: customerEmail(order),
+            },
+            { idempotencyKey: `rangrez-customer-${order.orderId}` }
+          )
+        : Promise.resolve(null),
+      resend.emails.send(
+        {
+          from: FROM,
+          to: contact.email,
+          replyTo: customer || contact.email,
+          subject: `New order ${order.orderId} - ${rupees(order.total)}`,
+          html: shopEmail(order),
+        },
+        { idempotencyKey: `rangrez-shop-${order.orderId}` }
+      ),
     ]);
+
+    if (customerResult?.error || shopResult.error) {
+      console.error('[email] Resend API error:', customerResult?.error, shopResult.error);
+      return false;
+    }
+
     console.log(`[email] Sent order emails for ${order.orderId}`);
     return true;
   } catch (error) {

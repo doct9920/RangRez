@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTokenFromRequest } from '@/lib/jwt';
 import { requireAdmin } from '@/lib/admin';
-import { getProductById, saveProduct, deleteProduct, Product } from '@/lib/products';
+import { type Product } from '@/lib/product-types';
 import { getProductByIdFromDB, updateProductInDB, deleteProductFromDB } from '@/lib/products-db';
 
 export async function GET(
@@ -12,10 +12,8 @@ export async function GET(
     const token = getTokenFromRequest(request);
     requireAdmin(token);
 
-    // Use database if DATABASE_URL is set, otherwise use in-memory store
-    const product = process.env.DATABASE_URL
-      ? await getProductByIdFromDB(params.id)
-      : getProductById(params.id);
+    // Fetch product from Supabase PostgreSQL
+    const product = await getProductByIdFromDB(params.id);
 
     if (!product) {
       return NextResponse.json(
@@ -44,10 +42,8 @@ export async function PATCH(
 
     const body = await request.json();
     
-    // Fetch existing product (use database if available)
-    const existingProduct = process.env.DATABASE_URL
-      ? await getProductByIdFromDB(params.id)
-      : getProductById(params.id);
+    // Fetch existing product from Supabase PostgreSQL
+    const existingProduct = await getProductByIdFromDB(params.id);
 
     if (!existingProduct) {
       return NextResponse.json(
@@ -83,24 +79,12 @@ export async function PATCH(
       images: bodyImages.length > 0 ? bodyImages : existingProduct.images || [],
     };
 
-    // Use database if DATABASE_URL is set, otherwise use in-memory store
-    let savedProduct: Product;
-    if (process.env.DATABASE_URL) {
-      savedProduct = await updateProductInDB(params.id, updatedProduct);
-      console.log('[PATCH /api/admin/products/[id]] Updated product in database:', {
-        id: savedProduct.id,
-        name: savedProduct.name,
-        imageCount: savedProduct.images?.length || 0,
-      });
-    } else {
-      saveProduct(updatedProduct);
-      savedProduct = updatedProduct;
-      console.log('[PATCH /api/admin/products/[id]] Updated product in memory:', {
-        id: updatedProduct.id,
-        name: updatedProduct.name,
-        imageCount: updatedProduct.images?.length || 0,
-      });
-    }
+    const savedProduct = await updateProductInDB(params.id, updatedProduct);
+    console.log('[PATCH /api/admin/products/[id]] Updated product in database:', {
+      id: savedProduct.id,
+      name: savedProduct.name,
+      imageCount: savedProduct.images?.length || 0,
+    });
 
     return NextResponse.json({ product: savedProduct });
   } catch (error: any) {
@@ -120,10 +104,8 @@ export async function DELETE(
     const token = getTokenFromRequest(request);
     requireAdmin(token);
 
-    // Check if product exists (use database if available)
-    const product = process.env.DATABASE_URL
-      ? await getProductByIdFromDB(params.id)
-      : getProductById(params.id);
+    // Check if product exists in Supabase PostgreSQL
+    const product = await getProductByIdFromDB(params.id);
 
     if (!product) {
       return NextResponse.json(
@@ -132,20 +114,15 @@ export async function DELETE(
       );
     }
 
-    // Delete from database if DATABASE_URL is set, otherwise from in-memory store
-    if (process.env.DATABASE_URL) {
-      const deleted = await deleteProductFromDB(params.id);
-      if (!deleted) {
-        return NextResponse.json(
-          { error: 'Failed to delete product from database' },
-          { status: 500 }
-        );
-      }
-      console.log(`[DELETE /api/admin/products/[id]] Deleted product ${params.id} from database`);
-    } else {
-      deleteProduct(params.id);
-      console.log(`[DELETE /api/admin/products/[id]] Deleted product ${params.id} from memory`);
+    // Delete product from Supabase PostgreSQL
+    const deleted = await deleteProductFromDB(params.id);
+    if (!deleted) {
+      return NextResponse.json(
+        { error: 'Failed to delete product from database' },
+        { status: 500 }
+      );
     }
+    console.log(`[DELETE /api/admin/products/[id]] Deleted product ${params.id} from database`);
 
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error: any) {

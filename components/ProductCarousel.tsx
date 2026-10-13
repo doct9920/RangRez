@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Product } from '@/lib/products';
+import type { Product } from '@/lib/product-types';
 import ProductImageRotator from './ProductImageRotator';
 
 interface ProductCarouselProps {

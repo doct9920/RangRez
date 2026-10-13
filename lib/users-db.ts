@@ -170,7 +170,7 @@ export async function getAllUsersFromDB(): Promise<User[]> {
     return users.map(prismaToUser);
   } catch (error) {
     console.error('[users-db.ts] Error fetching all users:', error);
-    return [];
+    throw error;
   }
 }
 

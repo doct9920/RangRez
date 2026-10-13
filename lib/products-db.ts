@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Database Product Functions
  * 
  * This module provides database-backed product functions.
@@ -8,7 +8,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/product-types';
 
 /**
  * Convert Prisma Product to Product interface
@@ -53,8 +53,7 @@ export async function getAllProductsFromDB(): Promise<Product[]> {
     return products.map(prismaToProduct);
   } catch (error) {
     console.error('[products-db.ts] Error fetching all products:', error);
-    // Fallback to empty array on error
-    return [];
+    throw error;
   }
 }
 

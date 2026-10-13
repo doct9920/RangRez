@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     if (payment.order_id !== razorpayOrderId) {
       return NextResponse.json({ error: 'Payment does not belong to this order' }, { status: 400 });
     }
-    if (payment.status !== 'captured' && payment.status !== 'authorized') {
+    if (payment.status !== 'captured') {
       return NextResponse.json({ error: `Payment is ${payment.status}` }, { status: 400 });
     }
     if (Number(payment.amount) < expectedPaise) {

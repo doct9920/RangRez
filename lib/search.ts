@@ -1,29 +1,4 @@
-import { Product, searchProducts } from './products';
-
-export interface SearchFilters {
-  collection?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  inStock?: boolean;
-}
-
-export interface SearchResult {
-  products: Product[];
-  total: number;
-  query: string;
-  filters?: SearchFilters;
-}
-
-export function performSearch(query: string, filters?: SearchFilters): SearchResult {
-  const products = searchProducts(query, filters);
-  
-  return {
-    products,
-    total: products.length,
-    query,
-    filters,
-  };
-}
+import type { Product } from './product-types';
 
 // Sort products
 export type SortOption = 'relevance' | 'price-low' | 'price-high' | 'name';

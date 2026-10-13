@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/product-types';
 import { sortProducts, SortOption } from '@/lib/search';
 import PlaceholderImage from '@/components/PlaceholderImage';
 import SearchBar from '@/components/SearchBar';

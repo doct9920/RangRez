@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTokenFromRequest } from '@/lib/jwt';
 import { requireAdmin } from '@/lib/admin';
-import { getAllProducts } from '@/lib/products';
-import { getAllOrders } from '@/lib/orders';
-import { getAllUsers } from '@/lib/users';
+import { getAllProductsFromDB } from '@/lib/products-db';
+import { getAllOrdersFromDB } from '@/lib/orders-db';
+import { getAllUsersFromDB } from '@/lib/users-db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,18 +11,20 @@ export async function GET(request: NextRequest) {
     requireAdmin(token);
 
     // Get all products
-    const products = getAllProducts();
+    const products = await getAllProductsFromDB();
     const totalProducts = products.length;
 
     // Get all orders
-    const allOrders = await getAllOrders();
+    const allOrders = await getAllOrdersFromDB();
     
     const totalOrders = allOrders.length;
-    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalRevenue = allOrders
+      .filter((order) => order.paymentStatus === 'paid')
+      .reduce((sum, order) => sum + (order.total || 0), 0);
     const pendingOrders = allOrders.filter((order) => order.status === 'pending').length;
 
     // Get all users
-    const allUsers = await getAllUsers();
+    const allUsers = await getAllUsersFromDB();
     const totalUsers = allUsers.length;
 
     // Get recent orders (last 10)
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     console.error('Admin stats error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch stats' },
-      { status: error.message?.includes('Forbidden') ? 403 : 401 }
+      { status: error.message?.includes('Forbidden') ? 403 : error.message?.includes('Unauthorized') ? 401 : 500 }
     );
   }
 }

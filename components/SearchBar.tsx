@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/product-types';
 import Link from 'next/link';
 import Image from 'next/image';
 import PlaceholderImage from './PlaceholderImage';

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import AdminGuard from '@/components/AdminGuard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/product-types';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -57,7 +57,7 @@ export async function getAllOrdersFromDB(): Promise<Order[]> {
     return orders.map(prismaToOrder);
   } catch (error) {
     console.error('[orders-db.ts] Error fetching all orders:', error);
-    return [];
+    throw error;
   }
 }
 
