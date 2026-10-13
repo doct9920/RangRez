@@ -27,6 +27,7 @@ interface HomepageSettings {
   heroBannerImage: string | null;
 
   heroSlides: string[];
+  heroSlideLinks: Record<string, string>;
 
   collectionImages: Record<string, string>;
 
@@ -55,6 +56,8 @@ export default function HomepageSettingsPage() {
 
 
   const [settings, setSettings] = useState<HomepageSettings | null>(null);
+  const [heroProducts, setHeroProducts] = useState<Array<{ id: string; sku: string }>>([]);
+  const [heroProductIds, setHeroProductIds] = useState<Record<string, string>>({});
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -152,6 +155,7 @@ export default function HomepageSettingsPage() {
 
 
         setSettings(data.settings);
+        setHeroProductIds(data.settings.heroSlideLinks || {});
 
 
 
@@ -199,6 +203,37 @@ export default function HomepageSettingsPage() {
 
 
 
+    const fetchHeroProducts = async () => {
+      try {
+        const token = localStorage.getItem('rangrez_token');
+
+        const response = await fetch('/api/admin/products', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load products');
+        }
+
+        const data = await response.json();
+
+        setHeroProducts(
+          (Array.isArray(data.products) ? data.products : [])
+            .filter((product: any) => product.id && product.sku)
+            .map((product: any) => ({
+              id: product.id,
+              sku: product.sku,
+            }))
+        );
+      } catch (err) {
+        console.error('Failed to load hero products:', err);
+        setError('Unable to load products for hero slideshow');
+      }
+    };
+
+    fetchHeroProducts();
     const fetchCollections = async () => {
 
       try {
@@ -409,6 +444,19 @@ export default function HomepageSettingsPage() {
 
 
 
+  const getActiveHeroSlideLinks = (slides: string[]) => {
+    const links: Record<string, string> = {};
+
+    slides.forEach((image) => {
+      const productId = heroProductIds[image];
+
+      if (productId) {
+        links[image] = productId;
+      }
+    });
+
+    return links;
+  };
   const saveHomepageSettings = async (
 
     updatedFormData: Record<string, string>
@@ -485,6 +533,7 @@ export default function HomepageSettingsPage() {
 
           heroSlides,
 
+                    heroSlideLinks: getActiveHeroSlideLinks(heroSlides),
           collectionImages,
 
         }),
@@ -1227,6 +1276,7 @@ export default function HomepageSettingsPage() {
 
         heroSlides,
 
+                heroSlideLinks: getActiveHeroSlideLinks(heroSlides),
         collectionImages,
 
       };
@@ -1718,49 +1768,56 @@ export default function HomepageSettingsPage() {
 
                             </label>
 
-
-
                             {formData[slide.key] && (
 
                               <button
-
                                 type="button"
-
                                 onClick={() =>
-
                                   setFormData((prev) => ({
-
                                     ...prev,
-
                                     [slide.key]: '',
-
                                   }))
-
                                 }
-
                                 className="text-sm text-red-600 hover:text-red-700"
-
                               >
-
                                 Remove
-
                               </button>
-
                             )}
 
                           </div>
 
-
-
                           {renderImagePreview(
-
                             formData[slide.key],
-
                             slide.label
-
                           )}
 
-
+                          {formData[slide.key] && (
+                            <div className="mt-3 mb-3">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Linked Product (SKU)
+                              </label>
+                              <select
+                                value={heroProductIds[formData[slide.key]] || ''}
+                                onChange={(e) =>
+                                  setHeroProductIds((prev) => ({
+                                    ...prev,
+                                    [formData[slide.key]]: e.target.value,
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                              >
+                                <option value="">Select product</option>
+                                {heroProducts.map((product) => (
+                                  <option key={product.id} value={product.id}>
+                                    {product.sku}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="mt-1 text-xs text-gray-500">
+                                Customer clicks this banner to open the selected product.
+                              </p>
+                            </div>
+                          )}
 
                           <div className="mt-2">
 

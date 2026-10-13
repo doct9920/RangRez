@@ -10,6 +10,7 @@ export interface HomepageSettings {
   id: string;
   heroBannerImage: string | null;
   heroSlides: string[];
+  heroSlideLinks: Record<string, string>;
   // Keyed by category slug (see lib/categories.ts)
   collectionImages: Record<string, string>;
   createdAt: Date;
@@ -38,6 +39,7 @@ export async function getHomepageSettingsFromDB(): Promise<HomepageSettings | nu
           id: 'homepage',
           heroBannerImage: null,
           heroSlides: [],
+          heroSlideLinks: {},
           collectionImages: {},
         },
       });
@@ -47,6 +49,13 @@ export async function getHomepageSettingsFromDB(): Promise<HomepageSettings | nu
       id: settings.id,
       heroBannerImage: settings.heroBannerImage,
       heroSlides: Array.isArray(settings.heroSlides) ? (settings.heroSlides as string[]) : [],
+      heroSlideLinks: (
+        settings.heroSlideLinks &&
+        typeof settings.heroSlideLinks === 'object' &&
+        !Array.isArray(settings.heroSlideLinks)
+          ? settings.heroSlideLinks
+          : {}
+      ) as Record<string, string>,
       collectionImages: settings.collectionImages as HomepageSettings['collectionImages'],
       createdAt: settings.createdAt,
       updatedAt: settings.updatedAt,
@@ -87,6 +96,7 @@ export async function updateHomepageSettingsInDB(
         data: {
           ...(data.heroBannerImage !== undefined && { heroBannerImage: data.heroBannerImage }),
           ...(data.heroSlides !== undefined && { heroSlides: data.heroSlides }),
+          ...(data.heroSlideLinks !== undefined && { heroSlideLinks: data.heroSlideLinks }),
           ...(data.collectionImages && { collectionImages: data.collectionImages }),
         },
       });
@@ -97,6 +107,7 @@ export async function updateHomepageSettingsInDB(
           id: 'homepage',
           heroBannerImage: data.heroBannerImage || null,
           heroSlides: data.heroSlides || [],
+          heroSlideLinks: data.heroSlideLinks || {},
           collectionImages: data.collectionImages || {},
         },
       });
@@ -106,6 +117,13 @@ export async function updateHomepageSettingsInDB(
       id: settings.id,
       heroBannerImage: settings.heroBannerImage,
       heroSlides: Array.isArray(settings.heroSlides) ? (settings.heroSlides as string[]) : [],
+      heroSlideLinks: (
+        settings.heroSlideLinks &&
+        typeof settings.heroSlideLinks === 'object' &&
+        !Array.isArray(settings.heroSlideLinks)
+          ? settings.heroSlideLinks
+          : {}
+      ) as Record<string, string>,
       collectionImages: settings.collectionImages as HomepageSettings['collectionImages'],
       createdAt: settings.createdAt,
       updatedAt: settings.updatedAt,

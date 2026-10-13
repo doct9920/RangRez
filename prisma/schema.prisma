@@ -30,9 +30,9 @@ model Collection {
   id        String              @id @default(cuid())
   name      String              @unique
   slug      String              @unique
-  isVisible Boolean @default(true) @map("is_visible")
   createdAt DateTime            @default(now()) @map("created_at")
   updatedAt DateTime            @updatedAt @map("updated_at")
+  isVisible Boolean             @default(true) @map("is_visible")
   products  ProductCollection[]
 
   @@index([name])
@@ -190,6 +190,7 @@ model HomepageSettings {
   id               String   @id @default("homepage")
   heroBannerImage  String?  @map("hero_banner_image")
   heroSlides       Json     @default("[]") @map("hero_slides")
+  heroSlideLinks   Json     @default("{}") @map("hero_slide_links")
   collectionImages Json     @map("collection_images")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")

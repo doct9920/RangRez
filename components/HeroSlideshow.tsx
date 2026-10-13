@@ -1,15 +1,19 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface HeroSlideshowProps {
   slides: string[];
+  slideLinks?: Record<string, string>;
 }
 
 const SLIDE_DURATION = 12000;
 
-export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
+export default function HeroSlideshow({
+  slides,
+  slideLinks = {},
+}: HeroSlideshowProps) {
   const validSlides = slides.filter(
     (slide) => typeof slide === 'string' && slide.trim().length > 0
   );
@@ -51,14 +55,32 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const MIN_SWIPE_DISTANCE = 50;
+  const touchStartX = useRef<number | null>(null);
+  const suppressBannerClick = useRef(false);
+
+  const handleBannerClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (suppressBannerClick.current) {
+      event.preventDefault();
+      suppressBannerClick.current = false;
+    }
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
+    touchStartX.current = e.targetTouches[0].clientX;
+    suppressBannerClick.current = false;
+setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    const currentX = e.targetTouches[0].clientX;
+    if (
+      touchStartX.current !== null &&
+      Math.abs(touchStartX.current - currentX) > 10
+    ) {
+      suppressBannerClick.current = true;
+    }
+setTouchEnd(e.targetTouches[0].clientX);
   };
 
   const handleTouchEnd = () => {
@@ -129,10 +151,17 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
           key={`${slide}-${index}`}
           aria-hidden={index !== current}
           className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
-            index === current ? 'opacity-100' : 'opacity-0'
+            index === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {slideLinks[slide] ? (
+            <a
+              href={`/products/${encodeURIComponent(slideLinks[slide])}`}
+              aria-label={`View product featured in slide ${index + 1}`}
+              onClick={handleBannerClick}
+              className="block w-full h-full cursor-pointer"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={slide}
             alt={`Rangrez featured collection slide ${index + 1}`}
@@ -144,6 +173,20 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             draggable={false}
             className="block w-full h-full object-contain"
           />
+            </a>
+          ) : (
+          <img
+            src={slide}
+            alt={`Rangrez featured collection slide ${index + 1}`}
+            width={1920}
+            height={900}
+            loading={index === 0 ? 'eager' : 'lazy'}
+            fetchPriority={index === 0 ? 'high' : 'auto'}
+            decoding="async"
+            draggable={false}
+            className="block w-full h-full object-contain"
+          />
+          )}
         </div>
       ))}
 

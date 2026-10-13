@@ -72,7 +72,7 @@ export default async function Home() {
   return (
     <main className="rangrez-luxury-home">
       {/* Hero Slideshow */}
-      <HeroSlideshow slides={heroSlides} />
+      <HeroSlideshow slides={heroSlides} slideLinks={settings?.heroSlideLinks || {}} />
 
       {/* Featured Collections */}
       <section className="rangrez-luxury-section py-2 md:py-10">

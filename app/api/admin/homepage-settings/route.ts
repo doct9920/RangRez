@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest) {
     requireAdmin(token);
 
     const body = await request.json();
-    const { heroBannerImage, heroSlides, collectionImages } = body;
+    const { heroBannerImage, heroSlides, heroSlideLinks, collectionImages } = body;
 
     const updateData: any = {};
     if (heroBannerImage !== undefined) {
@@ -44,6 +44,34 @@ export async function PATCH(request: NextRequest) {
         ? heroSlides.filter((slide: unknown) => typeof slide === 'string' && slide).slice(0, 3)
         : [];
     }
+    if (heroSlideLinks !== undefined) {
+      if (
+        !heroSlideLinks ||
+        typeof heroSlideLinks !== 'object' ||
+        Array.isArray(heroSlideLinks)
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid hero slide links' },
+          { status: 400 }
+        );
+      }
+
+      const validLinks: Record<string, string> = {};
+
+      for (const [imageUrl, productId] of Object.entries(heroSlideLinks)) {
+        if (
+          typeof imageUrl === 'string' &&
+          imageUrl.trim() &&
+          typeof productId === 'string' &&
+          productId.trim()
+        ) {
+          validLinks[imageUrl] = productId;
+        }
+      }
+
+      updateData.heroSlideLinks = validLinks;
+    }
+
     if (collectionImages !== undefined) {
       updateData.collectionImages = collectionImages;
     }
