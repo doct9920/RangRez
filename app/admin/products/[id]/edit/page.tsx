@@ -287,8 +287,12 @@ export default function EditProductPage() {
     setColors(updatedColors);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+  e: React.FormEvent,
+  finish = false
+) => {
     e.preventDefault();
+    if (isSaving) return;
     setIsSaving(true);
     setError('');
 
@@ -337,13 +341,15 @@ export default function EditProductPage() {
         throw new Error(data.error || 'Failed to update product');
       }
 
-      // Redirect back to products page
-      router.push('/admin/products');
+      if (finish) {
+  router.push('/admin/products');
+}
     } catch (err: any) {
-      console.error('Error updating product:', err);
-      setError(err.message || 'Failed to update product');
-      setIsSaving(false);
-    }
+  console.error('Error updating product:', err);
+  setError(err.message || 'Failed to update product');
+} finally {
+  setIsSaving(false);
+}
   };
 
   return (
@@ -789,6 +795,14 @@ export default function EditProductPage() {
                   >
                     {isSaving ? 'Saving...' : 'Save Changes'}
                   </button>
+                  <button
+  type="button"
+  disabled={isSaving}
+  onClick={(e) => handleSubmit(e, true)}
+  className="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50"
+>
+  Done
+</button>
                 </div>
               </form>
             </div>
