@@ -188,11 +188,11 @@ export default async function CollectionPage({
                   className="block"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-base font-bold md:text-lg">
+                    <p className="text-base font-bold text-[#E8C77B] md:text-lg">
                       {formatPrice(product.price)}
                     </p>
                     {discountPercent > 0 && (
-                      <p className="text-sm text-gray-500 line-through">
+                      <p className="text-sm text-[#E8C77B] line-through opacity-75">
                         {formatPrice(product.compareAtPrice!)}
                       </p>
                     )}

@@ -268,11 +268,11 @@ function SearchResultsContent() {
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2">
-                    <p className="text-base md:text-lg font-bold text-gray-900">
+                    <p className="text-base md:text-lg font-bold text-[#E8C77B]">
                       {formatPrice(product.price)}
                     </p>
                     {product.compareAtPrice && (
-                      <p className="text-sm text-gray-500 line-through">
+                      <p className="text-sm text-[#E8C77B] line-through opacity-75">
                         {formatPrice(product.compareAtPrice)}
                       </p>
                     )}

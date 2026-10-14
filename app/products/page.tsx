@@ -47,6 +47,16 @@ export default async function AllProductsPage() {
               productImage.startsWith('https://')
             );
 
+            const discountPercent =
+              product.compareAtPrice &&
+              product.compareAtPrice > product.price &&
+              product.price >= 0
+                ? Math.round(
+                    ((product.compareAtPrice - product.price) /
+                      product.compareAtPrice) * 100
+                  )
+                : 0;
+
             return (
               <Link
                 key={product.id}
@@ -54,6 +64,11 @@ export default async function AllProductsPage() {
                 className="group rangrez-product-float"
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100 mb-2 group-hover:shadow-lg transition-shadow">
+                  {discountPercent > 0 && (
+                    <span className="pointer-events-none absolute left-2 top-2 z-20 rounded-md border border-[#E8C77B] bg-[#17130D] px-2 py-1 text-[10px] font-bold text-[#E8C77B] shadow-md sm:text-xs">
+                      {discountPercent}% OFF
+                    </span>
+                  )}
                   {hasValidImage ? (
                     productImage.startsWith('data:') ? (
                       // Base64 data URL - use regular img tag
@@ -87,11 +102,11 @@ export default async function AllProductsPage() {
                   <ProductReviewStars productId={product.id} size="sm" noLink={true} />
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-base md:text-lg font-bold">
+                  <p className="text-base md:text-lg font-bold text-[#E8C77B]">
                     {formatPrice(product.price)}
                   </p>
                   {product.compareAtPrice && product.compareAtPrice > product.price && (
-                    <p className="text-sm text-gray-500 line-through">
+                    <p className="text-sm text-[#E8C77B] line-through opacity-75">
                       {formatPrice(product.compareAtPrice)}
                     </p>
                   )}
