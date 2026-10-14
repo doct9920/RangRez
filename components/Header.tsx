@@ -99,7 +99,7 @@ export default function Header() {
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
                 onClick={toggleMobileMenu}
-                className="md:hidden -ml-2 p-2 text-[#52627A] transition-colors hover:text-[#244FC4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244FC4]"
+                className="md:hidden -ml-2 p-2 text-[#E8C77B] transition-colors hover:text-[#FFD98A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8C77B]"
               >
                 {mobileMenuOpen ? (
                   <svg
@@ -157,7 +157,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                  className="text-sm font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                 >
                   {link.name}
                 </Link>
@@ -177,7 +177,7 @@ export default function Header() {
                 aria-label="Search"
                 aria-expanded={mobileSearchOpen}
                 onClick={toggleMobileSearch}
-                className="p-2 text-[#52627A] transition-colors hover:text-[#244FC4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244FC4] md:hidden"
+                className="p-2 text-[#E8C77B] transition-colors hover:text-[#FFD98A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8C77B] md:hidden"
               >
                 {mobileSearchOpen ? (
                   <svg
@@ -221,7 +221,7 @@ export default function Header() {
                       <button
                         type="button"
                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                        className="flex items-center gap-2 p-2 text-[#52627A] transition-colors hover:text-[#244FC4]"
+                        className="flex items-center gap-2 p-2 text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                         aria-label="User menu"
                         aria-expanded={userMenuOpen}
                       >
@@ -239,7 +239,7 @@ export default function Header() {
                           />
                         </svg>
 
-                        <span className="hidden text-sm font-medium text-[#202C46] lg:inline">
+                        <span className="hidden text-sm font-medium text-[#E8C77B] lg:inline">
                           {user.name.split(' ')[0]}
                         </span>
                       </button>
@@ -253,10 +253,10 @@ export default function Header() {
                             className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-[#BFC8D5] bg-white shadow-lg"
                           >
                             <div className="border-b border-[#BFC8D5] p-2">
-                              <p className="text-sm font-medium text-[#202C46]">
+                              <p className="text-sm font-medium text-[#E8C77B]">
                                 {user.name}
                               </p>
-                              <p className="truncate text-xs text-[#52627A]">
+                              <p className="truncate text-xs text-[#E8C77B]">
                                 {user.email}
                               </p>
                             </div>
@@ -264,7 +264,7 @@ export default function Header() {
                             <Link
                               href="/profile"
                               onClick={() => setUserMenuOpen(false)}
-                              className="block px-4 py-2 text-sm text-[#202C46] transition-colors hover:bg-[#F7F9FC] hover:text-[#244FC4]"
+                              className="block px-4 py-2 text-sm text-[#E8C77B] transition-colors hover:bg-[#2A2418] hover:text-[#FFD98A]"
                             >
                               My Profile
                             </Link>
@@ -272,7 +272,7 @@ export default function Header() {
                             <Link
                               href="/orders"
                               onClick={() => setUserMenuOpen(false)}
-                              className="block px-4 py-2 text-sm text-[#202C46] transition-colors hover:bg-[#F7F9FC] hover:text-[#244FC4]"
+                              className="block px-4 py-2 text-sm text-[#E8C77B] transition-colors hover:bg-[#2A2418] hover:text-[#FFD98A]"
                             >
                               My Orders
                             </Link>
@@ -282,7 +282,7 @@ export default function Header() {
                                 <Link
                                   href="/admin/dashboard"
                                   onClick={() => setUserMenuOpen(false)}
-                                  className="mt-1 block border-t border-[#BFC8D5] px-4 pt-2 pb-2 text-sm text-[#202C46] transition-colors hover:bg-[#F7F9FC] hover:text-[#244FC4]"
+                                  className="mt-1 block border-t border-[#BFC8D5] px-4 pt-2 pb-2 text-sm text-[#E8C77B] transition-colors hover:bg-[#2A2418] hover:text-[#FFD98A]"
                                 >
                                   Dashboard
                                 </Link>
@@ -290,7 +290,7 @@ export default function Header() {
                                 <Link
                                   href="/admin/homepage-settings"
                                   onClick={() => setUserMenuOpen(false)}
-                                  className="block px-4 py-2 text-sm text-[#202C46] transition-colors hover:bg-[#F7F9FC] hover:text-[#244FC4]"
+                                  className="block px-4 py-2 text-sm text-[#E8C77B] transition-colors hover:bg-[#2A2418] hover:text-[#FFD98A]"
                                 >
                                   Homepage Settings
                                 </Link>
@@ -303,7 +303,7 @@ export default function Header() {
                                 logout();
                                 setUserMenuOpen(false);
                               }}
-                              className="w-full px-4 py-2 text-left text-sm text-[#244FC4] transition-colors hover:bg-[#E7EDF9]"
+                              className="w-full px-4 py-2 text-left text-sm text-[#E8C77B] transition-colors hover:bg-[#2A2418]"
                             >
                               Logout
                             </button>
@@ -314,7 +314,7 @@ export default function Header() {
                   ) : (
                     <Link
                       href="/login"
-                      className="hidden px-4 py-2 text-sm font-medium text-[#202C46] transition-colors hover:text-[#244FC4] md:block"
+                      className="hidden px-4 py-2 text-sm font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A] md:block"
                     >
                       Login
                     </Link>
@@ -326,7 +326,7 @@ export default function Header() {
               <Link
                 href="/cart"
                 aria-label="Shopping cart"
-                className="relative p-2 text-[#52627A] transition-colors hover:text-[#244FC4]"
+                className="relative p-2 text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
               >
                 <svg
                   className="h-5 w-5 md:h-6 md:w-6"
@@ -392,7 +392,7 @@ export default function Header() {
                         <Link
                           href="/profile"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block py-2 text-base font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                          className="block py-2 text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                         >
                           My Profile
                         </Link>
@@ -400,7 +400,7 @@ export default function Header() {
                         <Link
                           href="/orders"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block py-2 text-base font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                          className="block py-2 text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                         >
                           My Orders
                         </Link>
@@ -409,7 +409,7 @@ export default function Header() {
                           <Link
                             href="/admin/dashboard"
                             onClick={() => setMobileMenuOpen(false)}
-                            className="block py-2 text-base font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                            className="block py-2 text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                           >
                             Dashboard
                           </Link>
@@ -421,7 +421,7 @@ export default function Header() {
                             logout();
                             setMobileMenuOpen(false);
                           }}
-                          className="block w-full py-2 text-left text-base font-medium text-[#244FC4] transition-colors hover:text-[#202C46]"
+                          className="block w-full py-2 text-left text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                         >
                           Logout
                         </button>
@@ -430,7 +430,7 @@ export default function Header() {
                       <Link
                         href="/login"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="block py-2 text-base font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                        className="block py-2 text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                       >
                         Login
                       </Link>
@@ -445,7 +445,7 @@ export default function Header() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block py-2 text-base font-medium text-[#202C46] transition-colors hover:text-[#244FC4]"
+                    className="block py-2 text-base font-medium text-[#E8C77B] transition-colors hover:text-[#FFD98A]"
                   >
                     {link.name}
                   </Link>
