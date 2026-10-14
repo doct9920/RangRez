@@ -126,6 +126,16 @@ export default async function CollectionPage({
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {products.map((product) => {
             const images = product.images ?? [];
+            const discountPercent =
+              product.compareAtPrice &&
+              product.compareAtPrice > product.price &&
+              product.price >= 0
+                ? Math.round(
+                    ((product.compareAtPrice - product.price) /
+                      product.compareAtPrice) *
+                      100
+                  )
+                : 0;
 
             return (
               <div
@@ -138,6 +148,12 @@ export default async function CollectionPage({
                     images={images}
                     name={product.name}
                   />
+
+                  {discountPercent > 0 && (
+                    <span className="pointer-events-none absolute left-2 top-2 z-20 rounded-md border border-[#E8C77B] bg-[#17130D] px-2 py-1 text-xs font-bold text-[#E8C77B] shadow-md">
+                      {discountPercent}% OFF
+                    </span>
+                  )}
 
                   {/* Main photo opens the product page */}
                   <Link
@@ -171,9 +187,16 @@ export default async function CollectionPage({
                   href={`/products/${product.id}`}
                   className="block"
                 >
-                  <p className="text-base font-bold md:text-lg">
-                    {formatPrice(product.price)}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-base font-bold md:text-lg">
+                      {formatPrice(product.price)}
+                    </p>
+                    {discountPercent > 0 && (
+                      <p className="text-sm text-gray-500 line-through">
+                        {formatPrice(product.compareAtPrice!)}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               </div>
             );

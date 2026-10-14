@@ -205,7 +205,7 @@ function SearchResultsContent() {
         <div className="lg:col-span-3">
           {/* Sort */}
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm font-semibold text-[#D4AF37]">
               Showing {results.length} {results.length === 1 ? 'product' : 'products'}
             </p>
             <select
@@ -231,6 +231,13 @@ function SearchResultsContent() {
                   aria-label={`View ${product.name} - ${formatPrice(product.price)}`}
                 >
                   <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 mb-3">
+                    {product.compareAtPrice &&
+                     product.compareAtPrice > product.price &&
+                     product.price >= 0 && (
+                      <span className="pointer-events-none absolute left-2 top-2 z-20 rounded-md border border-[#E8C77B] bg-[#17130D] px-2 py-1 text-xs font-bold text-[#E8C77B] shadow-md">
+                        {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
+                      </span>
+                    )}
                     {product.images[0] ? (
                       product.images[0].startsWith('data:') ? (
                         // Base64 data URL - use regular img tag
@@ -322,4 +329,3 @@ export default function SearchPage() {
     </Suspense>
   );
 }
-
