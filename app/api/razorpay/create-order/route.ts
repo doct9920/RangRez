@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { priceCart } from '@/lib/pricing';
 import { getRazorpay, isRazorpayConfigured } from '@/lib/razorpay-server';
+import { isStoreAvailableForCustomers } from '@/lib/store-availability';
 
 /**
  * Creates a Razorpay order for the current cart.
@@ -11,6 +12,13 @@ import { getRazorpay, isRazorpayConfigured } from '@/lib/razorpay-server';
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isStoreAvailableForCustomers())) {
+      return NextResponse.json(
+        { error: 'The store is temporarily closed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
     if (!isRazorpayConfigured()) {
       return NextResponse.json(
         { error: 'Online payment is not available right now.' },
@@ -19,35 +27,27 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { items, orderId, shippingAddress, deliveryMethod } = body as {
-  items?: Array<{ productId: string; quantity: number }>;
-  orderId?: string;
-  shippingAddress?: {
-    pincode?: string;
-  };
-  deliveryMethod?: 'standard' | 'air';
-};
-  if (!shippingAddress?.pincode?.trim()) {
-  return NextResponse.json(
-    { error: 'Valid PIN code is required for shipping calculation.' },
-    { status: 400 }
-  );
-}
-    if (deliveryMethod !== 'standard' && deliveryMethod !== 'air') {
-  return NextResponse.json(
-    { error: 'Valid delivery method is required.' },
-    { status: 400 }
-  );
-}
+    const { items, orderId, pincode, deliveryMethod } = body as {
+      items?: Array<{ productId: string; quantity: number }>;
+      orderId?: string;
+      pincode?: string;
+      deliveryMethod?: 'standard' | 'air';
+    };
+
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
+    if (!pincode || !/^\d{6}$/.test(pincode)) {
+      return NextResponse.json({ error: 'A valid 6-digit pincode is required.' }, { status: 400 });
+    }
+
     const priced = await priceCart(
-  items,
-  shippingAddress.pincode,
-  deliveryMethod
-);
+      items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+      pincode,
+      deliveryMethod === 'air' ? 'air' : 'standard'
+    );
+
     const razorpay = getRazorpay();
     const razorpayOrder = await razorpay.orders.create({
       amount: priced.amountInPaise,

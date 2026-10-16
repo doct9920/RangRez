@@ -116,6 +116,12 @@ export default function AdminDashboardPage() {
               >
                 Reviews
               </Link>
+              <Link
+                href="/admin/store-access"
+                className="flex-none whitespace-nowrap py-4 px-2 border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
+              >
+                Store Access
+              </Link>
             </div>
           </div>
         </nav>

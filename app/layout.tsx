@@ -9,6 +9,9 @@ import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Analytics from "@/components/Analytics";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { isStoreAvailableForCustomers } from '@/lib/store-availability';
 
 // Initialize default admin user (only in development)
 if (process.env.NODE_ENV === 'development') {
@@ -100,11 +103,23 @@ export const viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = headers().get('x-rangrez-path') || '/';
+  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isStorePausedRoute = pathname === '/store-paused';
+  const storeIsPublic = isAdminRoute ? true : await isStoreAvailableForCustomers();
+
+  if (!isAdminRoute && !storeIsPublic && !isStorePausedRoute) {
+    redirect('/store-paused');
+  }
+  if (!isAdminRoute && storeIsPublic && isStorePausedRoute) {
+    redirect('/');
+  }
+
   return (
     <html lang="en" className={dmSans.variable}>
       <head>
@@ -115,19 +130,25 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={`${dmSans.className} antialiased`} suppressHydrationWarning>
-        <Analytics />
-        <ErrorBoundaryWrapper>
-          <AuthProvider>
-            <CartProvider>
-              <Header />
-              <main className="min-h-screen" id="main-content">
-                <CustomerTheme>{children}</CustomerTheme>
-              </main>
-              <Footer />
-              <WhatsAppButton />
-            </CartProvider>
-          </AuthProvider>
-        </ErrorBoundaryWrapper>
+        {isStorePausedRoute && !storeIsPublic ? (
+          <main className="min-h-screen" id="main-content">{children}</main>
+        ) : (
+          <>
+            <Analytics />
+            <ErrorBoundaryWrapper>
+              <AuthProvider>
+                <CartProvider>
+                  <Header />
+                  <main className="min-h-screen" id="main-content">
+                    <CustomerTheme>{children}</CustomerTheme>
+                  </main>
+                  <Footer />
+                  <WhatsAppButton />
+                </CartProvider>
+              </AuthProvider>
+            </ErrorBoundaryWrapper>
+          </>
+        )}
       </body>
     </html>
   );

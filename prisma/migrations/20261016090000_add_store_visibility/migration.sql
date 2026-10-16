@@ -1,0 +1,2 @@
+ALTER TABLE "homepage_settings"
+ADD COLUMN IF NOT EXISTS "is_public" BOOLEAN NOT NULL DEFAULT TRUE;

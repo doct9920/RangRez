@@ -187,6 +187,7 @@ model WhatsAppEvent {
 }
 
 model HomepageSettings {
+  isPublic Boolean @default(true) @map("is_public")
   id               String   @id @default("homepage")
   heroBannerImage  String?  @map("hero_banner_image")
   heroSlides       Json     @default("[]") @map("hero_slides")

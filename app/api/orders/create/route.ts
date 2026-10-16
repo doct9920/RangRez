@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTokenFromRequest, verifyToken } from '@/lib/jwt';
+import { isStoreAvailableForCustomers } from '@/lib/store-availability';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isStoreAvailableForCustomers())) {
+      return NextResponse.json(
+        { error: 'The store is temporarily closed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
+
     // Require a valid signed-in customer token.
     const token = getTokenFromRequest(request);
     if (!token) {

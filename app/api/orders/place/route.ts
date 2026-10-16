@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { getTokenFromRequest, verifyToken } from '@/lib/jwt';
+import { isStoreAvailableForCustomers } from '@/lib/store-availability';
 import { priceCart } from '@/lib/pricing';
 
 /**
@@ -15,6 +16,14 @@ import { priceCart } from '@/lib/pricing';
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isStoreAvailableForCustomers())) {
+      return NextResponse.json(
+        { error: 'The store is temporarily closed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
+
     const body = await request.json();
 
     const { items, shippingAddress, paymentMethod, deliveryMethod } = body as {

@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 
 export interface HomepageSettings {
   id: string;
+  isPublic: boolean;
   heroBannerImage: string | null;
   heroSlides: string[];
   heroSlideLinks: Record<string, string>;
@@ -36,7 +37,7 @@ export async function getHomepageSettingsFromDB(): Promise<HomepageSettings | nu
     if (!settings) {
       settings = await prisma.homepageSettings.create({
         data: {
-          id: 'homepage',
+                    isPublic: true,
           heroBannerImage: null,
           heroSlides: [],
           heroSlideLinks: {},
@@ -47,6 +48,7 @@ export async function getHomepageSettingsFromDB(): Promise<HomepageSettings | nu
 
     return {
       id: settings.id,
+      isPublic: settings.isPublic,
       heroBannerImage: settings.heroBannerImage,
       heroSlides: Array.isArray(settings.heroSlides) ? (settings.heroSlides as string[]) : [],
       heroSlideLinks: (
@@ -94,6 +96,7 @@ export async function updateHomepageSettingsInDB(
       settings = await prisma.homepageSettings.update({
         where: { id: 'homepage' },
         data: {
+          ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
           ...(data.heroBannerImage !== undefined && { heroBannerImage: data.heroBannerImage }),
           ...(data.heroSlides !== undefined && { heroSlides: data.heroSlides }),
           ...(data.heroSlideLinks !== undefined && { heroSlideLinks: data.heroSlideLinks }),
@@ -104,7 +107,7 @@ export async function updateHomepageSettingsInDB(
       // Create new record
       settings = await prisma.homepageSettings.create({
         data: {
-          id: 'homepage',
+                    isPublic: data.isPublic ?? true,
           heroBannerImage: data.heroBannerImage || null,
           heroSlides: data.heroSlides || [],
           heroSlideLinks: data.heroSlideLinks || {},
@@ -115,6 +118,7 @@ export async function updateHomepageSettingsInDB(
 
     return {
       id: settings.id,
+      isPublic: settings.isPublic,
       heroBannerImage: settings.heroBannerImage,
       heroSlides: Array.isArray(settings.heroSlides) ? (settings.heroSlides as string[]) : [],
       heroSlideLinks: (
