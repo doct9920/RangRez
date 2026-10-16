@@ -70,6 +70,7 @@ export const createRazorpayOrder = async (
     body: JSON.stringify({
   items,
   orderId,
+  pincode,
   shippingAddress: {
     pincode,
   },
